@@ -1,0 +1,28 @@
+Wenn neue Instrumentenparameter definiert werden:
+ o bei parser::parse : case 1:
+ o bei parameter_enum
+ o param_t:: und Note::set_param
+ o param_to_enum
+ o param_needs_index
+ anpassen.
+
+
+regeln: TODO für todos. DEBUG für debugging-outputs und -dinge.
+        IMPLEMENTME für sachen, die in ferner zukunft gemacht werden sollten
+        FINDMICH nur für marker, die unmittelbar gebraucht werden.
+
+Abweichungen von General MIDI:
+  controller 3 steuert always_reattack im polymode
+  controller 1 muss von der config definiert werden, sonst wird er ignoriert
+  controller 119 steuert quick-release-zeit im falle eines voice-limits.
+                 0 bedeutet: sofort abschalten
+
+
+oscillator.phase will overflow in t seconds, with t being:
+t=fixed_t.max_value / (max_possible_freq << SCALE)
+with fixed_t being a uint64, max_possible_freq being 12544 Hz,
+the highest freq possible with MIDI and SCALE being 20,
+t = 1402438300 sec = 44,47 years.
+--> phase will never overflow
+
+

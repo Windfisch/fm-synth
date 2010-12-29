@@ -1,0 +1,20 @@
+Sinnlose Optimierungen
+   o if(foo.fm_strength!=0) ...: kein effekt, höchstens leichter anstieg!
+ 
+ Mögliche Optimierungen
+   o 10% filter ganz auf fixed_t umstellen?
+   o  5% envelope::get_level nur alle n frames arbeiten lassen, sonst cachen?
+   o  2% bei LFOs: bei jedem LFO-update die werte für env-max, freqfactor
+               und filter-offset aus orig berechnen
+   o  2% beim filter: evtl nur mit floats statt mit doubles rechnen?
+   o <2% in note::get_sample u.a.: pitch-bending effizienter lösen?
+   x  0% beim channel::get_sample: pro note immer mehrere samples auf
+              einmal holen (iterator braucht recht viel leistung)
+              wird von g++ automatisch wegoptimiert -> ok
+
+ Mögliche Bugs und ihre Lösung:
+   o frequenz wird nicht genau eingehalten: phase um
+     foo*WAVE_RES erhöhen, entsprechend wave[][bar] ändern.
+     ABER: im testfall um bis zu 15% langsamer
+
+

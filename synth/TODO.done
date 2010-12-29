@@ -1,0 +1,71 @@
+TODO für den synth
+   x knistern bei aktivem frameskip
+   x tremolo und vibrato: phase nurnoch ++
+   x rettack im monomode abschalten (sondern einfach nur freq ändern)
+   x bei freqänderung: aufpassen, ob nicht das programm auch geändert
+                       wurde. wenn ja: delete && new
+   x note-limit
+   x stereo: pan/balance
+   x envelopes on-the-fly ändern
+   x programs laden
+   x beim note-limit: statt abzuschneiden ausblenden
+   x einstellmöglichkeiten via MIDI-controller
+   x grund-controller bearbeiten
+   x ein port pro channel
+   x controllern einen defaultwert pro programm mitgeben
+   x monophoner modus
+   x reattack
+   x alwaysreattack setzen können
+   x portamento testen
+   x memcheck-clean!
+   x memcpy durch copy() plus operator= ersetzen?
+   x pitch-bend
+   x controller-reset
+   x key scale level, key scale rate
+   x akkurates note-on
+   x frameskip
+   x globale config-datei, oder alle programs in einem verz. einlesen etc.
+   x auf dateifehler reagieren!
+   x sampler-"oscs", d.h. laden von wav-dateien, die sich sonst
+     wie oscs verhalten (fm möglich usw.)
+   x analoge synthese auf den output jeder note anwenden
+   x tiefpass via def.datei setzen: trem, env, res
+   x tiefpass via controller setzen
+   x osc-sync
+   x bei genügend xruns noten töten
+   x filter knackst
+   x bei self-mod mit faktor 1 (auch ohne filter): segfault
+   x bei starken vibratos: segfault, weil fm zu extrem wird
+   x bei bug.prog: auch ohne filter: knacksen bei den meisten noten (z.B. C)
+   x per velocity statt lautstärke andere params steuern
+   x frameskip so implementieren, dass bufsize irrelevant ist
+   x lfo_update_frames einstellbar machen
+     sollte durch frameskip dividiert werden
+   x tremolo- und vibrato-arrays sind mit mehreren MB zu groß!
+     ein wert pro sample ist unnötig. könnte auch rechenzeit in
+     calc_foo sparen, da seltener aufgerufen
+   x sample-and-hold -> fm_strength, -> freq, -> VCF
+   * bei osc-envelopes ggf. auch nur alle n frames neu setzen? [verschoben]
+   * filter optimieren? (arbeiten momentan mit floats) [verschoben]
+     verstehen, optimieren und dann profilen
+   x stimmt die stereo-implementierung?  [ja]
+
+
+TODO fürs CLI
+   x filter_update_frames, lfo_update_frames in config, in sec (auch im CLI)
+   x max_port_time einstellen
+   x manuelle program -> datei - mappings
+   x automatische mappings ( xxxIGNORIERT.prg, xxx ist die programmnummer),
+     alle dateien eines verzeichnisses einlesen. bei nichtexistenz
+     auf normalen sinus zurückfallen
+   x konfigdateien lesen (inhalt wie CLI-optionen)
+   x vibrato- und tremolo-frequenzen einstellen
+   x cleanup-intervall setzen
+   x space-sicher machen
+   x fehlerbehandlung:
+     syntaxfehler sollten übergangen werden, sofern möglich
+     in parser: throw!, sonst: meckern und nächste zeile parsen
+   x automatisch an alle midi-outs hängen
+   x interface div-by-zero-sicher machen
+
+

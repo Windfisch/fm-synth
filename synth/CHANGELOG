@@ -1,0 +1,131 @@
+änderungen in 42b:winzige optimierung bei envelope-attack-phase
+änderungen in 42: sample and hold wird als LFO angesehen und funzt.
+änderungen in 40c:lfo_ und filter_update_freq im cli und in der
+                  konfig einstellbar
+änderungen in 40b:kleinigkeiten verbessert
+änderungen in 40: auf LFOs umgestellt
+
+ STABILE VERSION: 38b: FM-Synthese mit einstellungen und controllern
+ möglich. wellenformen können auch aus wav-dateien geladen werden.
+ vibrato, tremolo, portamento, reattack, festsetzbare stimmenanzahl,
+ "abgewürgte" noten können ausgeblendet werden. channel-modulation
+ muss manuell definiert werden. pitchbend und controllerreset,
+ frameskip, stereo, KSR, KSL funktionieren. CLI, configs und
+ instrumentendefinitionen funktionieren. anschlagsdynamik kann
+ verschiedene parameter steuern. analogsynthese und osc-sync.
+
+änderungen in 38b:bugfixes: sustain_orig eingeführt, bei reattack
+                  wird die vel neu gesetzt, divisionen durch null
+                  verhindert
+änderungen in 38: frameskip ist nun absolut alltagstauglich
+                  valgrind-gecheckt, halbwegs clean
+änderungen in 37e:velocity kann fm-stärke, vol und filter steuern
+                  37d coredumpt am ende... sehr merkwürdig. dort
+                    wird result im parser direkt geführt
+                  37d_ii funktioniert. hier wird das result wie
+                    gehabt erst am ende gesetzt. merkwürdig...
+                  außerdem: bug gefixt (s|atoi|atof| beim parsen)
+änderungen in 37b:velocity-kontrolle implementiert, kann aber nicht
+                  geladen werden
+änderungen in 36: frameskipping berichtigt (hängt von bufsize ab)
+änderungen in 35c:auto-connect für midi-in funktioniert
+                  diverse bugs behoben
+änderungen in 35b:debugging-outputs entfernt oder auf output_verbose
+                  umgestellt
+änderungen in 35: osc-sync funktioniert; seltener segfault-bug
+                  behoben. xrun-panic funktioniert
+änderungen in 34: phase auf hohen wert geinitet, +WAVE_RES entfällt
+                  es wurde berechnet, dass mit diesen einstellungen
+                  oscillator.phase in 44 Jahren überlaufen wird.
+änderungen in 33: filter-settings werden aus konfig geladen. per
+                  controller setzen muss noch getestet werden
+                  filter-update-frames kann per CLI gesetzt werden.
+                  bug in parameter_t::operator< gefixt
+änderungen in 32e:größtenteils wie 33
+änderungen in 32d:Note-ctor geändert; er erhält nun nur noch ein
+                  program_t& statt den einzelnen settings-pointern
+änderungen in 32c:tiefpassfilter funktioniert, kann aber noch
+                  nicht geladen oder per cont. gesetzt werden.
+änderungen in 31: sample-and-hold-generator geschrieben, kann aber
+                  nirgends angewendet werden!
+änderungen in 30d:custom-waves können nun via program-datei gesetzt
+                  werden; cw verbessert
+änderungen in 30b:custom-waves können geladen werden. deren samp_rate
+                  ist nun in fixed_t angegeben, um ungenauigkeiten
+                  wegen sr=sr/gegebene_freq zu beheben (detuned)
+änderungen in 30: custom-waves können benutzt, aber nicht geladen
+                  werden
+änderungen in 29k:fehler nun über eigene funktionen ausgegeben.
+                  diese funktionen können entscheiden, ob sie
+                  das programm beenden (fatal-warnings etc.) oder
+                  den hinweis ignorieren (quiet)
+änderungen in 29j:fehlerbehandlung fortgesetzt: einheitliches
+                  schema
+änderungen in 29i:fehlerbehandlung begonnen: nicht-fatale fehler
+                  werden ausgegeben, aber ignoriert
+änderungen in 29h:CLI verwendet nun floats statt ints
+                  zusätzliche throw-anweisungen
+änderungen in 29g:space-sicher gemacht, frameskip=0 kann per CLI
+                  gesetzt werden
+änderungen in 29f:konfig-dateien-parsen begonnen
+änderungen in 29e:clean_int., vib- und trem-freq. per CLI einstellbar
+änderungen in 29d:last_cleanup durch next_cleanup ersetzt
+änderungen in 29c:CLI begonnen; einlesen aller programme eines
+                  verzeichnisses und einzelnes einlesen sollte
+                  funktionieren. wird keine passende programm-
+                  definition gefunden, wird ein sinus verwendet
+
+ STABILE VERSION: 28: FM-Synthese mit einstellungen und controllern
+ möglich. vibrato, tremolo, portamento, reattack, festsetzbare
+ stimmenanzahl. "abgewürgte" noten können ausgeblendet werden.
+ channel-modulation muss manuell definiert werden. pitchbend und
+ controllerreset, frameskip, stereo, KSR, KSL funktionieren.
+
+änderungen in 28: knistern bei frameskip behoben
+änderungen in 27g:noch mehr bugfixes
+änderungen in 27f:einige bugfixes
+änderungen in 27e:bei set_note wird jetzt geprüft, ob das program
+                  gewechselt wurde. wenn ja: neue note anlegen
+änderungen in 27d:reattack im monomode nurnoch wenn always_reattack=true
+änderungen in 27c:tremolo/vibrato an samplingrate angepasst
+änderungen in 27: samp_rate von jack erhalten
+änderungen in 26: stimmenlimit implementiert, aber ungetestet!
+                  bei verwerfen einer stimme kann sie schnell weg-
+                  gefadet werden. auch das ist ungetestet!
+änderungen in 25: stereo wurde implementiert, aber nicht getestet!
+änderungen in 24: frameskip funktioniert
+änderungen in 23c:KSR und KSL werden eingelesen
+änderungen in 23b:KSR funktioniert
+änderungen in 23: KSL funktioniert
+änderungen in 22b:controllerreset hinzugefügt
+änderungen in 22: pitchbend hinzugefügt
+änderungen in 21: memcpy nur noch bei trivialen typen (int), sonst
+                  copy. osc_t hat operator=. folge: deep-copy funzt
+änderungen in 20: memory-leaks (bei einem simplen 5-sec-testlauf
+                  stolze 8kb!) entfernt. sollte jetzt leakfrei sein.
+änderungen in 19: reattack und portamento funktionieren
+änderungen in 18: code aufgeräumt: t entfernt, TO DOs entfernt
+änderungen in 17: envelopes können werte ändern
+änderungen in 16: controllerdefaults werden aus cfg gelesen
+                  und in program_t gepackt
+änderungen in 15: jeder channel hat einen port
+bugfix     in 14d:program_t hat nun einen deep-copy-=-operator
+änderungen in 14c:geänderte parameter werden gesichert und an
+                  neue noten weitergegeben
+änderungen in 13: controller für bereits spielende noten funktioniert.
+                  fehlt noch das der-nächsten-note-mitgeben
+änderungen in 12: programm-presets fertig, funktioniert.
+                  außerdem: bug beim parser ausgebessert
+änderungen in 11: parsen und programme angefangen
+änderungen in 10: wie 09, aber mit (unbenutzter) Parser-klasse
+änderungen in 09: notes besitzen nun eigenen framecounter
+änderungen in 08: vibratoeffekt hinzugefügt
+änderungen in 07: tremoloeffekt hinzugefügt
+änderungen zu 06_opt3: alles arbeitet mit fixed_t (bitshifting)
+änderungen zu 06_opt2: envelope-generator arbeitet mit fixed_t, aber jetzt
+                       mit bitshifting statt normalen divisionen
+änderungen zu 06_optimized: envelope-generator arbeitet mit fixed_t
+änderungen zu 06: floats statt doubles
+stand in 06: FM-synthese (und theoretisch AM) funktioniert, aber langsam
+             MIDI via jack und sound-out via jack funktioniert.
+
