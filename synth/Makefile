@@ -14,19 +14,19 @@ all: $(BIN)
 
 
 $(BIN): $(OBJ)
-	$(CXX) $(CFLAGS) -o synth $(OBJ) $(LDFLAGS)
+	$(CXX) $(CFLAGS) -o $(BIN) $(OBJ) $(LDFLAGS)
 	
 
-dep: $(SRC)
+depend dep: $(SRC)
 	$(CC) -MM $(SRC) > $(DEPENDFILE)
 
 -include $(DEPENDFILE)
 
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -g -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
-.PHONY: clean
+.PHONY: clean dep depend
 
 clean:
 	rm -f $(OBJ) $(BIN)
