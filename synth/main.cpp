@@ -95,7 +95,6 @@ int main(int argc, char** argv)
 					lfo[i][j][k]= (1.0 + temp*(float(LFO_MAX)*k/N_LFO_LEVELS)) * ONE;
 			}
 		
-		Parser parser;
 		program_settings=new program_t[128];
 
 		for (i=0;i<128;i++)
@@ -104,8 +103,7 @@ int main(int argc, char** argv)
 			{
 				try
 				{
-					parser.parse(programfile[i]);
-					program_settings[i]=parser.get_results();
+					program_settings[i]=parse(programfile[i]);
 				}
 				catch (string err)
 				{
