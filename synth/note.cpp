@@ -78,13 +78,7 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 
 	if (filter_params.enabled)
 	{
-		filter_envelope=new Envelope(
-			 filter_params.env_settings.attack,
-			 filter_params.env_settings.decay,
-			 filter_params.env_settings.sustain,
-			 filter_params.env_settings.release,
-			 filter_params.env_settings.hold );
-
+		filter_envelope=new Envelope(filter_params.env_settings);
 		filter_update_counter=filter_update_frames;
 	}
 
@@ -160,8 +154,8 @@ void Note::set_param(const parameter_t &p, fixed_t v) //ACHTUNG:
 		case KSL: oscillator[p.osc].ksl=float(v)/ONE; break;
 
 		case FACTOR: oscillator[p.osc].factor=v; break;
-		case MODULATION: oscillator[p.osc].fm_strength[p.index]=v*pfactor.fm[p.osc][p.index] >>SCALE; break;
-		case OUTPUT: oscillator[p.osc].output=v*pfactor.out[p.osc] >>SCALE; break;
+		case MODULATION: orig.oscillator[p.osc].fm_strength[p.index]=v; apply_pfactor(); break;
+		case OUTPUT: orig.oscillator[p.osc].output=v; apply_pfactor(); break;
 		case TREMOLO: oscillator[p.osc].tremolo_depth=v; break;
 		case TREM_LFO: oscillator[p.osc].tremolo_lfo=v; break;
 		case VIBRATO: oscillator[p.osc].vibrato_depth=v; break;
@@ -170,7 +164,7 @@ void Note::set_param(const parameter_t &p, fixed_t v) //ACHTUNG:
 		case SYNC: oscillator[p.osc].sync=(v!=0); break;
 
 		case FILTER_ENABLED: output_note("NOTE: cannot enable filter in playing notes"); break;
-		case FILTER_ENV_AMOUNT: filter_params.env_amount=float(v*pfactor.filter_env)/ONE/ONE; break;
+		case FILTER_ENV_AMOUNT: orig.filter_params.env_amount=float(v)/ONE; apply_pfactor(); break;
 
 		case FILTER_ATTACK:
 			if (filter_params.enabled)
@@ -207,8 +201,8 @@ void Note::set_param(const parameter_t &p, fixed_t v) //ACHTUNG:
 				output_note("NOTE: cannot set filter-hold when filter is disabled");
 			break;
 
-		case FILTER_OFFSET: filter_params.freqfactor_offset=float(v*pfactor.filter_offset)/ONE/ONE; break;
-		case FILTER_RESONANCE: filter_params.resonance=float(v*pfactor.filter_res)/ONE/ONE; break;
+		case FILTER_OFFSET: orig.filter_params.freqfactor_offset=float(v)/ONE; apply_pfactor(); break;
+		case FILTER_RESONANCE: orig.filter_params.resonance=float(v)/ONE; apply_pfactor(); break;
 		case FILTER_TREMOLO: filter_params.trem_strength=v; break;
 		case FILTER_TREM_LFO: filter_params.trem_lfo=v; break;
 		
@@ -258,6 +252,9 @@ void Note::reattack()
 {
 	for (int i=0;i<n_oscillators;i++)
 		envelope[i]->reattack();	
+
+	if (filter_params.enabled)
+		filter_envelope->reattack();
 }
 
 void Note::set_pitchbend(fixed_t pb)
@@ -382,12 +379,13 @@ fixed_t Note::get_sample()
 	for (i=0;i<n_oscillators;i++)
 	{
 		fm=0;
-		oscval[i]=0;
 		
 		for (j=0;j<n_oscillators;j++)
 			if (oscillator[i].fm_strength[j]!=0) //osc_j affects osc_i (FM)
-				fm+=(old_oscval[j]*oscillator[i].fm_strength[j])>>SCALE;
+				fm+=old_oscval[j]*oscillator[i].fm_strength[j];
 
+		fm=fm>>SCALE;
+		
 		//phase increases in one second, i.e. in samp_rate frames, by the osc's freq
 		if (oscillator[i].vibrato_depth!=0)
 			oscillator[i].phase+=(  (curr_lfo[oscillator[i].vibrato_lfo][oscillator[i].vibrato_depth]*actual_freq >>SCALE)*oscillator[i].factor/samp_rate)>>SCALE;
@@ -410,8 +408,10 @@ fixed_t Note::get_sample()
 			oscval[i]=oscval[i]* curr_lfo[oscillator[i].tremolo_lfo][oscillator[i].tremolo_depth] >> SCALE;
 		
 		if (oscillator[i].output!=0)
-			out+=oscillator[i].output*oscval[i] >>SCALE;
+			out+=oscillator[i].output*oscval[i];
 	}
+	
+	out=out>>SCALE;
 	
 	if (filter_params.enabled)
 	{

@@ -1,5 +1,30 @@
 TODO für den synth
    o notes compilieren und als .so-datei laden
+
+   x BUG: bei Note::set_param sollte statt dem eigentlichen param
+          der orig gesetzt werden und dann neu berechnet werden!
+   x BUG: bei release und reattack: BEIDE male die filter-envelope beachten!
+   o KSL mit powf und floats statt mit double umschreiben
+   o statt lfo-nummer direkten zugriff auf curr_lfo angeben?
+   x oscval-nullen kann in get_sample() weggelassen werden
+   o bei tremolo (und vibrato?): eventuell nicht prüfen, obs aktiviert
+     ist, sondern zur not einfach *1 rechnen?
+   x in get_sample(), beim aufaddieren zum out (und vmtl auch fm-)wert:
+     erst nach dem addieren scalen, statt für jeden faktor einzeln
+             
+   x filter_envelope könnte mit anderem ctor geinitet werden (weniger schreibarbeit)
+   x notes compilieren und als .so-datei laden
+
+   o programme on-the-fly (um)laden
+   
+   x parser-klasse durch parse-funktion ersetzen
+ 
+   x reattack a) garnicht, b) immer, c) nur wenn schon in releasephase
+     --> legatopedal!
+     
+   o bei envelopes: releasephase abschalten (bei sustain bleiben)
+
+   o soft-pedal
  
    o RAM aufräumen?
    
@@ -20,7 +45,7 @@ TODO für den synth
    o max_pitchbend per controller setzen?
    o nur auf bestimmte channels reagieren
  
-   o diverse pedale (soft, sostenuto, halte, legato (?))
+   x diverse pedale (soft, sostenuto, halte, legato (?))
 
   (o)programs on-the-fly ändern (n_osc ändern)
   (o)lfo-maxima getrennt regeln. nää
