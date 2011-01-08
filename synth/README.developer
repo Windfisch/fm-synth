@@ -12,7 +12,6 @@ regeln: TODO für todos. DEBUG für debugging-outputs und -dinge.
         FINDMICH nur für marker, die unmittelbar gebraucht werden.
 
 Abweichungen von General MIDI:
-  controller 3 steuert always_reattack im polymode
   controller 1 muss von der config definiert werden, sonst wird er ignoriert
   controller 119 steuert quick-release-zeit im falle eines voice-limits.
                  0 bedeutet: sofort abschalten

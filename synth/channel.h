@@ -39,7 +39,7 @@ class Channel
 		
 		void set_hold_pedal(bool newstate);
 		void set_sostenuto_pedal(bool newstate);
-		
+		void set_legato_pedal(bool newstate);
 		
 		float balL, balR;
 	private:
@@ -57,7 +57,6 @@ class Channel
 		
 		std::list<Note*> notes;
 		
-		bool always_reattack;
 		bool do_portamento;
 		
 		int n_voices;
@@ -70,6 +69,8 @@ class Channel
 		set<int> held_keys;
 		
 		set<int> sostenuto_keys;
+		
+		bool legato_pedal_pressed;
 };
 
 #endif

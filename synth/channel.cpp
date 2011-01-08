@@ -9,7 +9,6 @@ Channel::Channel()
 	set_program(0);
 	curr_prg.controller[NO_CONT]=1;
 	quick_release=0;
-	always_reattack=false;
 	portamento_frames2=portamento_frames=0;
 	do_portamento=false;
 	pitchbend=ONE;
@@ -23,6 +22,7 @@ Channel::Channel()
 	held_keys.clear();
 	sostenuto_keys.clear();
 	hold_pedal_pressed=false;
+	legato_pedal_pressed=false;
 }
 
 Channel::~Channel()
@@ -94,7 +94,7 @@ void Channel::note_on(int note, int vel)
 	{
 		pressed_keys.insert(note);
 		
-		if ( (n_voices==1) && (!notes.empty()) )
+		if ( (n_voices==1) && (!notes.empty()) ) //we're in monomode
 		{
 			//no need to create a new note; reuse the existing
 			Note *n; //i'm lazy
@@ -119,15 +119,14 @@ void Channel::note_on(int note, int vel)
 				//if not still active, don't do portamento
 				n->set_note(note,n->still_active());
 				n->set_vel((float)vel/128.0);
-				if (always_reattack || !n->still_active()) n->reattack();
+				if ((legato_pedal_pressed==false) || !n->still_active()) n->reattack();
 				//no need to push back. would become #1 instead of #1
 			}
 		}
-		else
+		else //we're in polymode
 		{
 			bool neednewnote=true;
-			if (always_reattack)
-			{
+			//if (always_reattack) always_reattack is always true when in polymode
 				for (it=notes.begin(); it!=notes.end(); it++)
 					if ( ((*it)->get_note()==note) && ((*it)->get_program()==program) )
 					{
@@ -138,7 +137,7 @@ void Channel::note_on(int note, int vel)
 						notes.erase(it);
 						break;
 					}
-			}
+
 			if (neednewnote)
 				notes.push_back(  new Note(note,(float)vel/128.0,
 																	 curr_prg,
@@ -195,13 +194,13 @@ void Channel::set_controller(int con,int val)
 {
 	switch (con)
 	{
-		case 3:   always_reattack=(val>=64);
 		case 5:   set_portamento_time(val); break;
 		case 7:   set_volume(val); break;
 		case 8:   set_balance(val); break;
 		case 65:  set_portamento(val); break;
 		case 64:  set_hold_pedal(val>=64); break;
 		case 66:  set_sostenuto_pedal(val>=64); break;
+		case 68:  set_legato_pedal(val>=64); break;
 		case 119: set_quick_release(val);
 		case 120: panic(); break;
 		case 121: reset_controllers(); break;
@@ -368,6 +367,11 @@ void Channel::set_sostenuto_pedal(bool newstate)
 	}
 }
 
+void Channel::set_legato_pedal(bool newstate)
+{
+	legato_pedal_pressed=newstate;
+}
+	
 void Channel::panic()
 {
 	list<Note*>::iterator it;
