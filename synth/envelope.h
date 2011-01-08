@@ -6,12 +6,16 @@
 #include "programs.h"
 #include "fixed.h"
 
+// when frames is given, this tells the envelope that get_level() is
+// only called every (frames) frames. 1 means "every time", 2 means
+// "every second time" and so on.
+// the caller must manage to call get_level() to the appropriate times
 
 class Envelope
 {
 	public:
-		Envelope(jack_nframes_t a, jack_nframes_t d, fixed_t s, jack_nframes_t r, bool h);
-		Envelope(env_settings_t s);
+		Envelope(jack_nframes_t a, jack_nframes_t d, fixed_t s, jack_nframes_t r, bool h, int frames=1);
+		Envelope(env_settings_t s, int frames=1);
 		void release_key();
 		void reattack();
 		fixed_t get_level();
@@ -51,6 +55,8 @@ class Envelope
 		bool hold;
 		jack_nframes_t t;
 		fixed_t ratefactor;
+		
+		int nth_frame;
 		
 		enum
 		{

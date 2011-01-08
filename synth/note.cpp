@@ -1,3 +1,5 @@
+#define ENV_NTH_FRAME 50
+
 #include <string>
 #include <cmath>
 
@@ -27,16 +29,17 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	for (int i=0;i<n_oscillators;i++)
 		pfactor.fm[i]=new fixed_t [n_oscillators];
 	
+	envval=new fixed_t[n_oscillators];
 	oscval=new fixed_t[n_oscillators];
 	old_oscval=new fixed_t[n_oscillators];
 	
 	for (int i=0;i<n_oscillators;i++)
-		oscval[i]=old_oscval[i]=0;
+		envval[i]=oscval[i]=old_oscval[i]=0;
 	
 	envelope=new Envelope*[n_oscillators];
 	
 	for (int i=0;i<n_oscillators;i++)
-		envelope[i]=new Envelope(prg.env_settings[i]);
+		envelope[i]=new Envelope(prg.env_settings[i], ENV_NTH_FRAME);
 	
 	oscillator=new oscillator_t[n_oscillators];
 	orig.oscillator=new oscillator_t[n_oscillators];
@@ -78,9 +81,12 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 
 	if (filter_params.enabled)
 	{
-		filter_envelope=new Envelope(filter_params.env_settings);
+		filter_envelope=new Envelope(filter_params.env_settings,1);
 		filter_update_counter=filter_update_frames;
 	}
+
+	env_frame_counter=ENV_NTH_FRAME; //force update in first frame
+	
 
 	sync_factor=prg.sync_factor;
 	sync_phase=0;
@@ -101,6 +107,7 @@ Note::~Note()
 	delete [] oscillator;
 	delete [] envelope;
 	
+	delete [] envval;
 	delete [] oscval;
 	delete [] old_oscval;
 
@@ -376,6 +383,16 @@ fixed_t Note::get_sample()
 		}
 	}
 	
+	
+	env_frame_counter++;
+	if (env_frame_counter>=ENV_NTH_FRAME)
+	{
+		env_frame_counter=0;
+		for (i=0;i<n_oscillators;i++)
+			envval[i]=envelope[i]->get_level();
+	}
+	
+	
 	for (i=0;i<n_oscillators;i++)
 	{
 		fm=0;
@@ -396,12 +413,12 @@ fixed_t Note::get_sample()
 		{
 			//sampler
 			custom_wave_t *cw=oscillator[i].custom_wave;
-			oscval[i]=cw->wave[ ((oscillator[i].phase  +  fm) * cw->samp_rate >>(2*SCALE)) % cw->wave_len ] * envelope[i]->get_level()  >> (SCALE);
+			oscval[i]=cw->wave[ ((oscillator[i].phase  +  fm) * cw->samp_rate >>(2*SCALE)) % cw->wave_len ] * envval[i]  >> (SCALE);
 		}
 		else
 		{
 			//normal oscillator
-			oscval[i]=wave[oscillator[i].waveform][ ((oscillator[i].phase  +  fm) * WAVE_RES >>SCALE) % WAVE_RES ] * envelope[i]->get_level()  >> (SCALE);
+			oscval[i]=wave[oscillator[i].waveform][ ((oscillator[i].phase  +  fm) * WAVE_RES >>SCALE) % WAVE_RES ] * envval[i] >> (SCALE);
 		}
 
 		if (oscillator[i].tremolo_depth!=0)

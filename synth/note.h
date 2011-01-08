@@ -37,10 +37,14 @@ class Note
 		void apply_pfactor();
 
 		Envelope **envelope;
+
 		fixed_t freq, dest_freq, old_freq;
 		fixed_t vel;
 		jack_nframes_t portamento_t, portamento_frames;
 		
+		int env_frame_counter;
+		
+		fixed_t *envval;
 		fixed_t *oscval;
 		fixed_t *old_oscval;
 		int n_oscillators;

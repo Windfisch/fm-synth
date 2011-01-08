@@ -1,11 +1,13 @@
 #include "envelope.h"
 
-Envelope::Envelope(jack_nframes_t a, jack_nframes_t d, fixed_t s, jack_nframes_t r, bool h)
+Envelope::Envelope(jack_nframes_t a, jack_nframes_t d, fixed_t s, jack_nframes_t r, bool h, int frames)
 {
 	level=0;
 	t=0;
 	state=ATTACK;
 	max=ONE;
+
+	nth_frame=frames;
 
 	set_ratefactor(1.0);
 
@@ -16,12 +18,14 @@ Envelope::Envelope(jack_nframes_t a, jack_nframes_t d, fixed_t s, jack_nframes_t
 	set_hold(h);
 }
 
-Envelope::Envelope(env_settings_t s)
+Envelope::Envelope(env_settings_t s, int frames)
 {
 	level=0;
 	t=0;
 	state=ATTACK;
 	max=ONE;
+
+	nth_frame=frames;
 
 	set_ratefactor(1.0);
 
@@ -44,7 +48,7 @@ void Envelope::set_ratefactor(double factor)
 void Envelope::set_attack(jack_nframes_t a)
 {
 	attack_orig=a;
-	attack=a*ratefactor >>SCALE;
+	attack=(a*ratefactor >>SCALE)/nth_frame;
 	
 	if (state==ATTACK)
 		t=attack*level >>SCALE;
@@ -53,7 +57,7 @@ void Envelope::set_attack(jack_nframes_t a)
 void Envelope::set_decay(jack_nframes_t d)
 {
 	decay_orig=d;
-	decay=d*ratefactor >>SCALE;
+	decay=(d*ratefactor >>SCALE)/nth_frame;
 	
 	if ((state==DECAY) && (sustain!=ONE))
 		if (sustain<ONE) //to avoid a div. by zero
@@ -69,7 +73,7 @@ void Envelope::set_sustain(fixed_t s)
 void Envelope::set_release(jack_nframes_t r)
 {
 	release_orig=r;
-	release=r*ratefactor >>SCALE;
+	release=(r*ratefactor >>SCALE)/nth_frame;
 	
 	if (state==RELEASE)
 		if (sustain>0) //to avoid a div. by zero
