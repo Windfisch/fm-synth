@@ -18,6 +18,11 @@ Channel::Channel()
 	max_pitchbend=1.0;
 	
 	set_balance(64);
+	
+	pressed_keys.clear();
+	held_keys.clear();
+	sostenuto_keys.clear();
+	hold_pedal_pressed=false;
 }
 
 Channel::~Channel()
@@ -65,7 +70,21 @@ void Channel::event(uint8_t a, uint8_t b, uint8_t c)
 
 void Channel::note_off(int note)
 {
-	note_on(note,0);
+	pressed_keys.erase(note);
+	
+	if (hold_pedal_pressed)
+		held_keys.insert(note);
+	else if (sostenuto_keys.find(note)!=sostenuto_keys.end())
+		/* do nothing */;
+	else
+		really_do_note_off(note);
+}
+
+void Channel::really_do_note_off(int note)
+{
+	for (list<Note*>::iterator it=notes.begin(); it!=notes.end(); it++)
+		if ((*it)->get_note()==note)
+			(*it)->release();	
 }
 
 void Channel::note_on(int note, int vel)
@@ -73,6 +92,8 @@ void Channel::note_on(int note, int vel)
 	list<Note*>::iterator it;
 	if (vel>0) //note on
 	{
+		pressed_keys.insert(note);
+		
 		if ( (n_voices==1) && (!notes.empty()) )
 		{
 			//no need to create a new note; reuse the existing
@@ -129,9 +150,7 @@ void Channel::note_on(int note, int vel)
 	}                                                  
 	else //note off
 	{
-		for (it=notes.begin(); it!=notes.end(); it++)
-			if ((*it)->get_note()==note)
-				(*it)->release();
+		note_off(note);
 	}
 		
 }
@@ -181,6 +200,8 @@ void Channel::set_controller(int con,int val)
 		case 7:   set_volume(val); break;
 		case 8:   set_balance(val); break;
 		case 65:  set_portamento(val); break;
+		case 64:  set_hold_pedal(val>=64); break;
+		case 66:  set_sostenuto_pedal(val>=64); break;
 		case 119: set_quick_release(val);
 		case 120: panic(); break;
 		case 121: reset_controllers(); break;
@@ -303,6 +324,48 @@ void Channel::set_real_portamento_frames()
 	list<Note*>::iterator it;
 	for (it=notes.begin(); it!=notes.end(); it++)
 		(*it)->set_portamento_frames(portamento_frames);
+}
+
+void Channel::set_hold_pedal(bool newstate)
+{
+	if (hold_pedal_pressed!=newstate)
+	{
+		hold_pedal_pressed=newstate;
+		
+		if (newstate==false)
+		{
+			//check for all held keys: is the key not pressed any more?
+			//                         is the key not in sostenuto_keys?
+			//if both conditions are fulfilled, release that note
+			for (set<int>::iterator it=held_keys.begin(); it!=held_keys.end(); it++)
+				if ( (pressed_keys.find(*it)==pressed_keys.end()) &&
+					   (sostenuto_keys.find(*it)==sostenuto_keys.end()) )
+						note_off(*it);
+			
+			held_keys.clear();
+		}
+	}
+}
+
+void Channel::set_sostenuto_pedal(bool newstate)
+{
+	// !sostenuto_keys.empty() equals pedal_pressed
+	if ( newstate != !sostenuto_keys.empty() )
+	{
+		if (newstate)
+		{
+			sostenuto_keys=pressed_keys;
+		}
+		else
+		{
+			if (hold_pedal_pressed==false)
+				for (set<int>::iterator it=sostenuto_keys.begin(); it!=sostenuto_keys.end(); it++)
+					if (pressed_keys.find(*it)==pressed_keys.end())
+						really_do_note_off(*it);
+			
+			sostenuto_keys.clear();
+		}
+	}
 }
 
 void Channel::panic()

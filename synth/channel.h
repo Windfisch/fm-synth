@@ -24,6 +24,7 @@ class Channel
 		void set_pitch_bend(float val);
 		void note_on(int note, int vel);
 		void note_off(int note);
+		void really_do_note_off(int note);
 		void cleanup();
 		void release_all();
 		void panic();
@@ -35,6 +36,10 @@ class Channel
 		void set_n_voices(int val);
 		void set_quick_release(int val);
 		void reset_controllers();
+		
+		void set_hold_pedal(bool newstate);
+		void set_sostenuto_pedal(bool newstate);
+		
 		
 		float balL, balR;
 	private:
@@ -58,6 +63,13 @@ class Channel
 		int n_voices;
 		jack_nframes_t quick_release;
 		
+		
+		set<int> pressed_keys;
+		
+		bool hold_pedal_pressed;
+		set<int> held_keys;
+		
+		set<int> sostenuto_keys;
 };
 
 #endif
