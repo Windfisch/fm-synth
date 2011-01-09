@@ -11,6 +11,7 @@
 
 #define FILTER_UPDATE_FREQ_HZ 250
 #define LFO_UPDATE_FREQ_HZ 500
+#define ENVELOPE_UPDATE_FREQ_HZ 50
 
 //when changing this, also change code marked with FINDLFO!
 #define N_LFOS 3

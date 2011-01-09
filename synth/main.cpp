@@ -41,6 +41,7 @@ int main(int argc, char** argv)
 		if (max_port_time_sec<=0) max_port_time_sec=MAX_PORTAMENTO_TIME;
 		if (filter_update_freq_hz<=0) filter_update_freq_hz=FILTER_UPDATE_FREQ_HZ;
 		if (lfo_update_freq_hz<=0) lfo_update_freq_hz=LFO_UPDATE_FREQ_HZ;
+		if (envelope_update_freq_hz<=0) envelope_update_freq_hz=ENVELOPE_UPDATE_FREQ_HZ;
 		if (xrun_n<=0) xrun_n=XRUN_N;
 		if (xrun_time<=0) xrun_time=XRUN_TIME;
 		
@@ -62,9 +63,10 @@ int main(int argc, char** argv)
 
 		filter_update_frames=samp_rate/filter_update_freq_hz;
 		lfo_update_frames=samp_rate/lfo_update_freq_hz;
+		envelope_update_frames=samp_rate/envelope_update_freq_hz;
 		if (filter_update_frames<1) filter_update_frames=1;
 		if (lfo_update_frames<1) lfo_update_frames=1;
-
+		if (envelope_update_frames<1) envelope_update_frames=1;
 
 		int i,j;
 
@@ -184,5 +186,6 @@ void dump_options()
 	cout << "xrun n/time:\t\t"<<xrun_n<<"/"<<xrun_time<<"s"<<endl;
 	cout << "lfo update freq:\t"<<lfo_update_freq_hz<<endl;
 	cout << "filter update freq:\t"<<filter_update_freq_hz<<endl;
+	cout << "envelope update freq:\t"<<envelope_update_freq_hz<<endl;
 	
 }

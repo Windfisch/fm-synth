@@ -44,6 +44,8 @@ void parse_args(int argc, char** argv)
 			{"max-portamento-time",           required_argument,  0, 303},
 			{"filter-update-freq",           required_argument,  0, 305},
 			{"lfo-update-freq",           required_argument,  0, 306},
+			{"env-update-freq",           required_argument,  0, 307},
+			{"envelope-update-freq",           required_argument,  0, 307},
 			{"no-connect-audio-out",          no_argument,        0, 'a'},
 			{"no-connect-audio",          no_argument,        0, 'a'},
 			{"dont-connect-audio-out",          no_argument,        0, 'a'},
@@ -163,6 +165,14 @@ void parse_args(int argc, char** argv)
 										lfo_update_freq_hz=atof(optarg);
 								else
 									output_warning("WARNING: not a number in --lfo-update-freq option. ignoring it...");
+								break;
+			case 307:	if (isfloat(optarg))
+									if (atoi(optarg)<=0)
+										output_warning("WARNING: envelope-update-freq must be positive. ignoring it...");
+									else
+										envelope_update_freq_hz=atof(optarg);
+								else
+									output_warning("WARNING: not a number in --envelope-update-freq option. ignoring it...");
 								break;
 								
 			default: cout << "ERROR: invalid command line options. try the --help switch" << endl;

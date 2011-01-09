@@ -36,9 +36,11 @@ extern float max_port_time_sec;
 
 extern float filter_update_freq_hz;
 extern float lfo_update_freq_hz;
+extern float envelope_update_freq_hz;
 
 extern int filter_update_frames;
 extern int lfo_update_frames;
+extern int envelope_update_frames;
 
 extern float xrun_time;
 extern int xrun_n;

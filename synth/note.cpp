@@ -1,5 +1,3 @@
-#define ENV_NTH_FRAME 50
-
 #include <string>
 #include <cmath>
 
@@ -39,7 +37,7 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	envelope=new Envelope*[n_oscillators];
 	
 	for (int i=0;i<n_oscillators;i++)
-		envelope[i]=new Envelope(prg.env_settings[i], ENV_NTH_FRAME);
+		envelope[i]=new Envelope(prg.env_settings[i], envelope_update_frames);
 	
 	oscillator=new oscillator_t[n_oscillators];
 	orig.oscillator=new oscillator_t[n_oscillators];
@@ -85,7 +83,7 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 		filter_update_counter=filter_update_frames;
 	}
 
-	env_frame_counter=ENV_NTH_FRAME; //force update in first frame
+	env_frame_counter=envelope_update_frames; //force update in first frame
 	
 
 	sync_factor=prg.sync_factor;
@@ -385,7 +383,7 @@ fixed_t Note::get_sample()
 	
 	
 	env_frame_counter++;
-	if (env_frame_counter>=ENV_NTH_FRAME)
+	if (env_frame_counter>=envelope_update_frames)
 	{
 		env_frame_counter=0;
 		for (i=0;i<n_oscillators;i++)

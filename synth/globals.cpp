@@ -23,11 +23,13 @@ float cleanup_interval_sec=0;
 float snh_freq_hz=0;
 float max_port_time_sec=0;
 
-float filter_update_freq_hz;
-float lfo_update_freq_hz;
+float filter_update_freq_hz=0;
+float lfo_update_freq_hz=0;
+float envelope_update_freq_hz=0;
 
 int filter_update_frames;
 int lfo_update_frames;
+int envelope_update_frames;
 
 float xrun_time=0;
 int xrun_n=0;

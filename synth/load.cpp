@@ -176,6 +176,13 @@ void read_config(const char *cfg, bool complain=true)
 								else
 									output_verbose("NOTE: ignoring value for filter_update_freq, another setting overrides this.");
 							}
+							else if ((var=="envelope_update_freq") || (var=="env_update_freq"))
+							{
+								if (envelope_update_freq_hz==0)
+									envelope_update_freq_hz=valf;
+								else
+									output_verbose("NOTE: ignoring value for envelope_update_freq, another setting overrides this.");
+							}
 							else
 								output_warning("WARNING: unknown variable '"+var+"'. ignoring it...");
 						}
