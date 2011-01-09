@@ -3,6 +3,11 @@
 #include "math.h"
 #include "globals.h"
 
+#include "note.h"
+
+#include "note_funcs.h"
+
+
 Channel::Channel()
 {
 	volume=ONE;
@@ -32,11 +37,11 @@ Channel::~Channel()
 
 void Channel::cleanup()
 {
-	list<Note*>::iterator it;
+	list<NoteSkel*>::iterator it;
 	for (it=notes.begin(); it!=notes.end(); it++)
 		if ((*it)->still_active()==false)
 		{
-			delete *it;
+			(*it)->destroy();
 			it=notes.erase(it);
 		}
 }
@@ -45,7 +50,7 @@ fixed_t Channel::get_sample()
 {
 	fixed_t sum=0;
 	
-	for (list<Note*>::iterator it=notes.begin(); it!=notes.end(); it++)
+	for (list<NoteSkel*>::iterator it=notes.begin(); it!=notes.end(); it++)
 		sum+=(*it)->get_sample();
 
 	return sum*volume >>SCALE;
@@ -82,14 +87,14 @@ void Channel::note_off(int note)
 
 void Channel::really_do_note_off(int note)
 {
-	for (list<Note*>::iterator it=notes.begin(); it!=notes.end(); it++)
+	for (list<NoteSkel*>::iterator it=notes.begin(); it!=notes.end(); it++)
 		if ((*it)->get_note()==note)
 			(*it)->release();	
 }
 
 void Channel::note_on(int note, int vel)
 {
-	list<Note*>::iterator it;
+	list<NoteSkel*>::iterator it;
 	if (vel>0) //note on
 	{
 		pressed_keys.insert(note);
@@ -97,22 +102,29 @@ void Channel::note_on(int note, int vel)
 		if ( (n_voices==1) && (!notes.empty()) ) //we're in monomode
 		{
 			//no need to create a new note; reuse the existing
-			Note *n; //i'm lazy
+			NoteSkel *n; //i'm lazy
 			n= *(notes.begin());
 			
 			if (n->get_program() != program)
 			{
 				//if the program has changed, kill the previous note and
 				//create a new one
-				delete n;
+				n->destroy();
 				notes.clear();
 				
-				notes.push_back(  new Note(note,(float)vel/128.0,
-																	 curr_prg,
-																	 portamento_frames,
-																	 pitchbend, 
-																	 program)  );
-				
+				NoteSkel *newnote=NULL;
+				if (curr_prg.create_func==NULL)
+					newnote = new Note(note,(float)vel/128.0,
+														 curr_prg,
+														 portamento_frames, pitchbend, 
+														 program);
+				else
+					newnote = curr_prg.create_func(note,(float)vel/128.0,
+																				 curr_prg,
+																				 portamento_frames, pitchbend, 
+																				 program);
+
+				notes.push_back(newnote);
 			}
 			else //program did not change
 			{
@@ -139,11 +151,22 @@ void Channel::note_on(int note, int vel)
 					}
 
 			if (neednewnote)
-				notes.push_back(  new Note(note,(float)vel/128.0,
-																	 curr_prg,
-																	 portamento_frames,
-																	 pitchbend, 
-																	 program)  );
+			{
+				NoteSkel *newnote=NULL;
+				if (curr_prg.create_func==NULL)
+					newnote = new Note(note,(float)vel/128.0,
+														 curr_prg,
+														 portamento_frames, pitchbend, 
+														 program);
+				else
+					newnote = curr_prg.create_func(note,(float)vel/128.0,
+																				 curr_prg,
+																				 portamento_frames, pitchbend, 
+																				 program);
+
+				notes.push_back(newnote);
+			}
+
 			apply_voice_limit();
 		}
 	}                                                  
@@ -171,7 +194,7 @@ void Channel::apply_voice_limit()
 		int diff=notes.size()-n_voices;
 		if (diff>0)
 		{
-			list<Note*>::iterator it=notes.begin();
+			list<NoteSkel*>::iterator it=notes.begin();
 
 			if (quick_release)
 				for (int i=0;i<diff;i++)
@@ -182,7 +205,7 @@ void Channel::apply_voice_limit()
 			else
 				for (int i=0;i<diff;i++)
 				{
-					delete (*it);
+					(*it)->destroy();
 					it=notes.erase(it);
 				}
 		}
@@ -259,7 +282,7 @@ void Channel::recalc_param(const parameter_t &par, program_t &prg)
 	// waveform etc it's in int (i.e., val/ONE is very small, while
 	// val is what we want)
 
-	for (list<Note*>::iterator it=notes.begin(); it!=notes.end(); it++)
+	for (list<NoteSkel*>::iterator it=notes.begin(); it!=notes.end(); it++)
 		(*it)->set_param(par, val);
 	
 	curr_prg.set_param(par, val);
@@ -320,7 +343,7 @@ void Channel::set_real_portamento_frames()
 	else
 		portamento_frames=0;
 		
-	list<Note*>::iterator it;
+	list<NoteSkel*>::iterator it;
 	for (it=notes.begin(); it!=notes.end(); it++)
 		(*it)->set_portamento_frames(portamento_frames);
 }
@@ -374,17 +397,17 @@ void Channel::set_legato_pedal(bool newstate)
 	
 void Channel::panic()
 {
-	list<Note*>::iterator it;
+	list<NoteSkel*>::iterator it;
 	for (it=notes.begin(); it!=notes.end();)
 	{
-		delete *it;
+		(*it)->destroy();
 		it=notes.erase(it);
 	}
 }
 
 void Channel::release_all()
 {
-	list<Note*>::iterator it;
+	list<NoteSkel*>::iterator it;
 	for (it=notes.begin(); it!=notes.end(); it++)
 		(*it)->release();
 }
@@ -399,7 +422,7 @@ void Channel::set_pitch_bend(float val)
 {
 	pitchbend=pow(2.0,val/12.0)*ONE;
 	
-	list<Note*>::iterator it;
+	list<NoteSkel*>::iterator it;
 	for (it=notes.begin(); it!=notes.end(); it++)
 		(*it)->set_pitchbend(pitchbend);
 }

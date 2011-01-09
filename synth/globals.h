@@ -14,7 +14,7 @@ using namespace std;
 extern fixed_t **lfo[N_LFOS];
 extern fixed_t *curr_lfo[N_LFOS+1];
 
-extern fixed_t wave[N_WAVEFORMS][WAVE_RES];
+extern fixed_t* wave[N_WAVEFORMS];
 
 extern fixed_t sample_and_hold[N_LFO_LEVELS];
 

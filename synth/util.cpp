@@ -192,7 +192,7 @@ string extract_val(string s)
 	if (p!=string::npos)
 		return s.substr(p+1);
 	else
-		return "";
+		return s;
 }
 
 string fileext(string f)

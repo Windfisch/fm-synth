@@ -1,0 +1,4 @@
+main.o: main.cpp parser.h ../synth/fixed.h programs.h util.h
+parser.o: parser.cpp parser.h ../synth/fixed.h programs.h util.h \
+  ../synth/defines.h
+util.o: util.cpp util.h programs.h ../synth/fixed.h

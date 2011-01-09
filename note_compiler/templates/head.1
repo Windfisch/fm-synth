@@ -1,0 +1,48 @@
+#include <jack/jack.h>
+
+#include <cmath>
+#include <string>
+
+#include "defines.h"
+#include "programs.h"
+#include "envelope.h"
+#include "fixed.h"
+#include "filter.h"
+#include "note_skel.h"
+
+using namespace std;
+
+int filter_update_frames=0;
+int samp_rate=0;
+fixed_t** wave=NULL;
+fixed_t** curr_lfo=NULL;
+
+typedef void output_note_func_t(string s);
+typedef string IntToStr_func_t(int i);
+
+output_note_func_t* output_note=NULL;
+IntToStr_func_t* IntToStr=NULL;
+
+class Note : public NoteSkel
+{
+	public:
+		Note(int n, float v,program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no);
+		~Note();
+		fixed_t get_sample();
+
+		void release_quickly(jack_nframes_t maxt);
+		void release();
+		void reattack();
+		bool still_active();
+		void set_param(const parameter_t &p, fixed_t v);
+		
+		void destroy();
+		
+	private:
+		void do_ksl();
+		void do_ksr();
+
+		void recalc_factors();
+		void apply_pfactor();
+
+// member variables begin here

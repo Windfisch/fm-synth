@@ -52,6 +52,7 @@ TODO für den synth
    x BUG: bei Note::set_param sollte statt dem eigentlichen param
           der orig gesetzt werden und dann neu berechnet werden!
    x BUG: bei release und reattack: BEIDE male die filter-envelope beachten!
+   x wave auf int*[] mit wave[i]=new int[] umbauen
    x oscval-nullen kann in get_sample() weggelassen werden
    x in get_sample(), beim aufaddieren zum out (und vmtl auch fm-)wert:
      erst nach dem addieren scalen, statt für jeden faktor einzeln
@@ -77,5 +78,16 @@ TODO fürs CLI
      in parser: throw!, sonst: meckern und nächste zeile parsen
    x automatisch an alle midi-outs hängen
    x interface div-by-zero-sicher machen
+   x envelope_update_frames per CLI setzen
+   x .so unloaden!
+   * lfo-maxima getrennt regeln. [abgelehnt]
 
 
+TODO für den compiler
+   x wenn vel_influence für foo, aber foo ist konstant null, bleibt
+     foo trotzdem konstant.
+   x vel_influence ist IMMER gegeben für output, außer wenn anders
+     angegeben
+   x *1 bzw /2 optimierungen klappen nicht?
+   x pfactor nicht wegoptimieren, sondern immer verwenden
+   x wenn sync global aus ist, kann auch osc.sync genullt werden

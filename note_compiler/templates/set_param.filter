@@ -1,0 +1,7 @@
+		
+		case FILTER_ENABLED: output_note("NOTE: cannot enable filter in playing notes"); break;
+		case FILTER_ENV_AMOUNT: orig.filter_params.env_amount=float(v)/ONE; apply_pfactor(); break;
+		case FILTER_OFFSET: orig.filter_params.freqfactor_offset=float(v)/ONE; apply_pfactor(); break;
+		case FILTER_RESONANCE: orig.filter_params.resonance=float(v)/ONE; apply_pfactor(); break;
+		case FILTER_TREMOLO: filter_params.trem_strength=v; break;
+		case FILTER_TREM_LFO: filter_params.trem_lfo=v; break;

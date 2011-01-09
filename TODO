@@ -1,23 +1,28 @@
 TODO für den synth
+   o bei envelopes: releasephase abschalten (bei sustain bleiben)
+   o soft-pedal
+
+   o programme on-the-fly (um)laden
+   o RAM aufräumen?
+
+   o beide parser: envelopes von oscs mit out=0 standardmäßig deaktivieren
+   o envelope, filter, ggf. auch alles aus program.o im hauptprogramm
+     lassen? d.h. via init funktionspointer übergeben oder virtuelle
+     interfaceklassen benutzen (für envelope/filter z.B.)
+
    o KSL mit powf und floats statt mit double umschreiben
    o statt lfo-nummer direkten zugriff auf curr_lfo angeben?
    o bei tremolo (und vibrato?): eventuell nicht prüfen, obs aktiviert
      ist, sondern zur not einfach *1 rechnen?
+   o beim default_program vielleicht auch ein optimiertes objekt benutzen?
 
-   o programme on-the-fly (um)laden
-     
-   o bei envelopes: releasephase abschalten (bei sustain bleiben)
-
-   o soft-pedal
- 
-   o RAM aufräumen?
-   
    o jedes programm eigene LFOs?
    o andere wellenformen bei LFOs?
    o mehr wellen für wave[]
  
    o parser: sehr redundante funktionen zusammenführen
    o parser: direkt in result schreiben?  
+   o parser: lässt sich sicher noch viel besser lösen, siehe auch oben
  
    o attack und release ggf. auf niedrigen wert (<=0.01) initen, um
      knackser zu vermeiden?
@@ -29,11 +34,9 @@ TODO für den synth
    o max_pitchbend per controller setzen?
    o nur auf bestimmte channels reagieren
  
-  (o)programs on-the-fly ändern (n_osc ändern)
-  (o)lfo-maxima getrennt regeln. nää
   (o)bei filter-envelopes: ksr/ksl? nää.
   (o)resonanz-tremolo bei tiefpass? nää.
 
 
 TODO fürs CLI
-   x envelope_update_frames per CLI setzen
+   x ...

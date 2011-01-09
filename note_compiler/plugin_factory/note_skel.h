@@ -1,0 +1,1 @@
+../../synth/note_skel.h

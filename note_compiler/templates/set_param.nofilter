@@ -1,0 +1,13 @@
+		case FILTER_ENABLED:
+		case FILTER_ENV_AMOUNT:
+		case FILTER_ATTACK:
+		case FILTER_DECAY:
+		case FILTER_SUSTAIN:
+		case FILTER_RELEASE:
+		case FILTER_HOLD:
+		case FILTER_OFFSET:
+		case FILTER_RESONANCE:
+		case FILTER_TREMOLO:
+		case FILTER_TREM_LFO:
+			output_note("NOTE: trying to set some filter-param, but filter is disabled");
+			break;

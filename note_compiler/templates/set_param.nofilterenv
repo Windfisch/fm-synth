@@ -1,0 +1,7 @@
+		case FILTER_ATTACK:
+		case FILTER_DECAY:
+		case FILTER_SUSTAIN:
+		case FILTER_RELEASE:
+		case FILTER_HOLD:
+			output_note("NOTE: trying to change filter envelope, but that envelope is disabled");
+			break;

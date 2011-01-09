@@ -1,4 +1,3 @@
-#include <string>
 #include <cmath>
 
 #include "note.h"
@@ -17,8 +16,12 @@ inline fixed_t init_custom_osc_phase(int len, fixed_t sr)
 
 Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no)
 {	
-	curr_prg=&prg;
 	
+	curr_prg=&prg;
+		
+
+	
+		
 	n_oscillators=prg.n_osc;
 	
 	
@@ -62,17 +65,8 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	}
 	
 		
-	portamento_frames=0;
-	set_portamento_frames(pf);
-		
-	set_note(n);
-	freq=dest_freq;
-	set_vel(v);
 	do_ksl();
 	
-	pitchbend=pb;
-	
-	program=prg_no;
 	
 	filter_params=prg.filter_settings;
 	orig.filter_params=prg.filter_settings;
@@ -88,6 +82,22 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 
 	sync_factor=prg.sync_factor;
 	sync_phase=0;
+
+
+
+
+	portamento_frames=0;
+	set_portamento_frames(pf);
+		
+	set_note(n);
+	freq=dest_freq;
+	set_vel(v);
+	
+	pitchbend=pb;
+	
+	program=prg_no;
+
+
 }
 
 Note::~Note()
@@ -262,52 +272,6 @@ void Note::reattack()
 		filter_envelope->reattack();
 }
 
-void Note::set_pitchbend(fixed_t pb)
-{
-	pitchbend=pb;
-}
-
-void Note::set_freq(float f)
-{
-	old_freq=freq;
-	dest_freq=f*ONE;
-	portamento_t=0;
-	
-	do_ksr();
-}
-
-void Note::set_freq(float f, bool do_port)
-{
-	set_freq(f);
-	
-	if (!do_port)
-		old_freq=dest_freq;
-}
-
-void Note::set_note(int n)
-{
-	note=n;
-	set_freq(440.0*pow(2.0,(float)(n-69)/12.0));
-}
-
-void Note::set_note(int n, bool do_port)
-{
-	note=n;
-	set_freq(440.0*pow(2.0,(float)(n-69)/12.0), do_port);
-}
-
-int Note::get_note()
-{
-	return note;
-}
-
-void Note::set_vel(float v)
-{
-	vel=v*ONE;
-	
-	recalc_factors();
-	apply_pfactor();
-}
 
 void Note::do_ksl()
 { //osc.ksl is in Bel/octave (i.e. dB/10)
@@ -326,12 +290,6 @@ void Note::do_ksr()
 {
 	for (int i=0;i<n_oscillators;i++)
 		envelope[i]->set_ratefactor(1.0 / pow(freq>>SCALE, oscillator[i].ksr));
-}
-
-void Note::set_portamento_frames(jack_nframes_t t)
-{
-	portamento_frames=t;
-	portamento_t=0;
 }
 
 fixed_t Note::get_sample()
@@ -449,4 +407,9 @@ fixed_t Note::get_sample()
 	{
 		return out;
 	}
+}
+
+void Note::destroy()
+{
+	delete this;
 }

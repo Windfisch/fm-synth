@@ -7,7 +7,7 @@
 
 #include "fixed.h"
 #include "programs.h"
-#include "note.h"
+#include "note_skel.h"
 #include "defines.h"
 #include "util.h"
 
@@ -55,7 +55,7 @@ class Channel
 		fixed_t pitchbend;
 		float max_pitchbend;
 		
-		std::list<Note*> notes;
+		std::list<NoteSkel*> notes;
 		
 		bool do_portamento;
 		

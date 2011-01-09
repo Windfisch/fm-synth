@@ -1,5 +1,3 @@
-//uniniten
-
 #include <cstdlib>
 #include <fstream>
 
@@ -286,7 +284,7 @@ program_t parse(string fn)
 	
 	pfactor_formula_t pfactor;
 	
-	fixed_t sync_factor;
+	fixed_t sync_factor=0;
 
 
 	

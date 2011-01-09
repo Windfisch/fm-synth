@@ -12,6 +12,7 @@
 #include "programs.h"
 #include "defines.h"
 #include "globals.h"
+#include "note_loader.h"
 
 using namespace std;
 
@@ -106,6 +107,23 @@ int main(int argc, char** argv)
 				try
 				{
 					program_settings[i]=parse(programfile[i]);
+					
+					// try to load the appropriate .so file
+					if (access(  (programfile[i]+".so").c_str(), R_OK ) == 0)
+					{
+						try
+						{
+							load_note_from_so(programfile[i]+".so", program_settings[i]);
+							output_verbose("NOTE: loaded shared object for program '"+programfile[i]+"'");
+						}
+						catch (string err)
+						{
+							output_note("NOTE: could not load shared object '"+programfile[i]+".so"+"':\n"
+							            "  "+err+"\n"
+							            "  this is not fatal, the note has been loaded properly, but generic\n"
+							            "  unoptimized (slow) code will be used.");
+						}        
+					}
 				}
 				catch (string err)
 				{
@@ -121,7 +139,9 @@ int main(int argc, char** argv)
 			}
 		}
 		
-				
+		for (i=0;i<N_WAVEFORMS;i++)
+			wave[i]=new fixed_t[WAVE_RES];
+			
 		for (i=0;i<WAVE_RES;i++)
 		{
 			wave[0][i]=sin(i*2.0*3.141592654/WAVE_RES)*ONE;
@@ -164,6 +184,9 @@ void cleanup()
 		delete channel[i];
 		channel[i]=NULL;
 	}
+	
+	for (int i=0;i<128;i++)
+		maybe_unload_note(program_settings[i]);
 	
 	delete [] program_settings;
 }

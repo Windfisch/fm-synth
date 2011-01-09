@@ -49,6 +49,9 @@ program_t::program_t()
 	
 	pfactor.fm=NULL;
 	pfactor.out=NULL;
+	
+	create_func=NULL;
+	dl_handle=NULL;
 }
 
 program_t::~program_t()
@@ -114,6 +117,10 @@ program_t& program_t::operator=(const program_t &that)
 			this->pfactor.fm[i]=new param_factor_t [n_osc];
 			memcpy(this->pfactor.fm[i], that.pfactor.fm[i], sizeof(param_factor_t)*n_osc);
 		}
+		
+		
+		this->create_func=that.create_func;
+		this->dl_handle=that.dl_handle;
 		
 		return *this;
 	}

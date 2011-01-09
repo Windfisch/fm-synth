@@ -1,0 +1,27 @@
+	if ( ((p.par==ATTACK) || (p.par==DECAY) || (p.par==SUSTAIN) || 
+	     (p.par==RELEASE) || (p.par==HOLD)) && sel_env==NULL )
+	{
+		output_note("NOTE: cannot change parameter for envelope"+IntToStr(p.osc)+" because it's disabled");
+		return;
+	}
+		
+	switch(p.par)
+	{
+		case ATTACK: sel_env->set_attack(v*samp_rate >>SCALE); break;
+		case DECAY: sel_env->set_decay(v*samp_rate >>SCALE); break;
+		case SUSTAIN: sel_env->set_sustain(v); break;
+		case RELEASE: sel_env->set_release(v*samp_rate >>SCALE); break;
+		case HOLD: sel_env->set_hold(v!=0); break;
+
+		case KSR: sel_osc->ksr=float(v)/ONE; break;
+		case KSL: sel_osc->ksl=float(v)/ONE; break;
+
+		case FACTOR: sel_osc->factor=v; break;
+		case TREMOLO: sel_osc->tremolo_depth=v; break;
+		case TREM_LFO: sel_osc->tremolo_lfo=v; break;
+		case VIBRATO: sel_osc->vibrato_depth=v; break;
+		case VIB_LFO: sel_osc->vibrato_lfo=v; break;
+		case WAVEFORM: sel_osc->waveform=v; break;
+		case SYNC: sel_osc->sync=(v!=0); break;
+		case MODULATION: sel_orig_osc->fm_strength[p.index]=v; apply_pfactor(); break;
+    case OUTPUT: sel_orig_osc->output=v; apply_pfactor(); break;

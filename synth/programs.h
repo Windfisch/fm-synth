@@ -7,6 +7,7 @@
 #include <list>
 
 #include "fixed.h"
+#include "note_funcs.h"
 #include <jack/jack.h>
 
 using namespace std;
@@ -173,7 +174,10 @@ struct program_t
 	
 	pfactor_formula_t pfactor;
 		
-
+	
+	void *dl_handle;
+	create_func_t *create_func;
+	
 
 	program_t();
 	~program_t();

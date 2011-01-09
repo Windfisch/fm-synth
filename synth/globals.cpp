@@ -3,7 +3,7 @@
 fixed_t **lfo[N_LFOS];
 fixed_t *curr_lfo[N_LFOS+1];
 
-fixed_t wave[N_WAVEFORMS][WAVE_RES];
+fixed_t* wave[N_WAVEFORMS];
 
 fixed_t sample_and_hold[N_LFO_LEVELS];
 

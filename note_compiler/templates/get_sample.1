@@ -1,0 +1,23 @@
+fixed_t Note::get_sample()
+{
+	if (freq!=dest_freq)
+	{
+		// the div.by.zero if p_frames=0 is avoided because then the 
+		// if-condition below is always true
+		if (portamento_t>=portamento_frames)
+			freq=dest_freq;
+		else //will only happen if p_t < p_frames -> p_frames is always > 0 -> div. ok
+			freq = old_freq + (dest_freq-old_freq)*portamento_t/portamento_frames;
+		
+		do_ksl();
+		
+		portamento_t++;
+	}
+
+	fixed_t actual_freq=freq*pitchbend >>SCALE;
+
+	fixed_t *temp;
+	temp=old_oscval;   //swap the current and old oscval-pointers
+	old_oscval=oscval;
+	oscval=temp;
+

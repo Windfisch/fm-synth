@@ -12,7 +12,7 @@
 
 using namespace std;
 
-//#define DO_DEBUGGING_EVENTS
+#define DO_DEBUGGING_EVENTS
 
 jack_port_t	*midi_in;
 jack_port_t *out_port[N_CHANNELS];
@@ -317,7 +317,7 @@ int process_callback(jack_nframes_t nframes, void *notused)
 	}
 	else if (tmp2==0)
 	{
-		if (lastframe>tmp+44100*2)
+		if (lastframe>tmp+44100*1)
 		{
 			tmp2=1;
 			cout << "BÄÄM" << endl;
@@ -326,17 +326,53 @@ int process_callback(jack_nframes_t nframes, void *notused)
 	}
 	else if (tmp2==1)
 	{
-		if (lastframe>tmp+44100*4)
+		if (lastframe>tmp+44100*2)
 		{
 			tmp2=2;
 			channel[0]->event(0x90,87,5);
-			channel[0]->set_controller(57, 127);
+			channel[0]->set_controller(58, 0);
+			cout << "BÄÄM2" << endl;
+		}
+	}
+	else if (tmp2==2)
+	{
+		if (lastframe>tmp+44100*3)
+		{
+			tmp2=3;
+			channel[0]->event(0x90,90,127);
+			cout << "BÄÄM2" << endl;
+		}
+	}
+	else if (tmp2==3)
+	{
+		if (lastframe>tmp+44100*4)
+		{
+			tmp2=4;
+			channel[0]->event(0x90,60,96);
+			cout << "BÄÄM2" << endl;
+		}
+	}
+	else if (tmp2==4)
+	{
+		if (lastframe>tmp+44100*5)
+		{
+			tmp2=5;
+			channel[0]->event(0x90,63,32);
+			cout << "BÄÄM2" << endl;
+		}
+	}
+	else if (tmp2==5)
+	{
+		if (lastframe>tmp+44100*6)
+		{
+			tmp2=6;
+			channel[0]->event(0x90,66,60);
 			cout << "BÄÄM2" << endl;
 		}
 	}
 	else
 	{
-		if (lastframe>tmp+44100*10)
+		if (lastframe>tmp+44100*8)
 		{
 			cout << "finished" << endl;
 			exit(0);

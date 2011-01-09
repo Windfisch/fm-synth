@@ -1,0 +1,11 @@
+// member variables end here
+};
+
+//this function returns the smallest phase_init possible for a
+//given custom_wave which is greater or equal than PHASE_INIT
+#define PHASE_INIT 100
+inline fixed_t init_custom_osc_phase(int len, fixed_t sr)
+{
+	return ( (fixed_t(ceil( float(PHASE_INIT) * sr / len / ONE )) *len << (2*SCALE)) / sr);
+}
+

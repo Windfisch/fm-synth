@@ -1,0 +1,30 @@
+Die Programmdatei wird geparst. Der Parser achtet hierbei auf folgendes:
+ - Initialwert der Parameter
+ - werden die Parameter jemals geändert?
+
+Parameter, die nie geändert werden, werden hardgecodet.
+Parameter, die geändert werden können, nicht.
+
+Wann können Parameter verändert werden?
+ - per controller (set_param)
+ - per velocity (pfactor, apply_pfactor etc.)
+ - wenn vom user angegeben ("variable:")
+
+get_sample (und letztendlich auch alle anderen funktionen) folgender-
+maßen durchgehen:
+
+z.B. bei if (sync_factor): wenn sync-factor variabel ist, codestelle
+so übernehmen. sonst entweder das if rauslassen und nur den nutzteil
+übernehmen, oder den ganzen teil rauslassen.
+
+
+bei for (i=0;i<n_oscillators;i++) jeden osc einzeln eincodieren.
+jeweils relevante teile übernehmen, rest rauslassen
+
+bei konstanten werte diese hardcoden
+
+envelopes können ggf. weggelassen werden, wenn folgendes gilt:
+attack=0, decay=egal, sustain=1.0, release>9999
+
+arrays werden als viele pointer realisiert.
+also nicht oscillator[0], osc[1] etc sondern osc0, osc1 etc

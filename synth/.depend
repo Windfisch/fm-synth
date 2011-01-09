@@ -1,25 +1,31 @@
-channel.o: channel.cpp channel.h fixed.h programs.h note.h envelope.h \
-  filter.h defines.h util.h globals.h
-cli.o: cli.cpp util.h programs.h fixed.h globals.h channel.h note.h \
-  envelope.h filter.h defines.h load.h
+channel.o: channel.cpp channel.h fixed.h programs.h note_funcs.h \
+  note_skel.h defines.h util.h globals.h note.h envelope.h filter.h
+cli.o: cli.cpp util.h programs.h fixed.h note_funcs.h globals.h channel.h \
+  note_skel.h defines.h load.h
 defines.o: defines.cpp defines.h
-envelope.o: envelope.cpp envelope.h programs.h fixed.h
+envelope.o: envelope.cpp envelope.h programs.h fixed.h note_funcs.h
 filter.o: filter.cpp filter.h fixed.h defines.h globals.h programs.h \
-  channel.h note.h envelope.h util.h
-globals.o: globals.cpp globals.h programs.h fixed.h channel.h note.h \
-  envelope.h filter.h defines.h util.h
-jack.o: jack.cpp defines.h globals.h programs.h fixed.h channel.h note.h \
-  envelope.h filter.h util.h jack.h
-load.o: load.cpp util.h programs.h fixed.h globals.h channel.h note.h \
-  envelope.h filter.h defines.h
+  note_funcs.h channel.h note_skel.h util.h
+globals.o: globals.cpp globals.h programs.h fixed.h note_funcs.h \
+  channel.h note_skel.h defines.h util.h
+jack.o: jack.cpp defines.h globals.h programs.h fixed.h note_funcs.h \
+  channel.h note_skel.h util.h jack.h
+load.o: load.cpp util.h programs.h fixed.h note_funcs.h globals.h \
+  channel.h note_skel.h defines.h
 main.o: main.cpp jack.h load.h cli.h parser.h fixed.h programs.h \
-  channel.h note.h envelope.h filter.h defines.h util.h globals.h
-note.o: note.cpp note.h programs.h fixed.h envelope.h filter.h globals.h \
-  channel.h defines.h util.h
-parser.o: parser.cpp parser.h fixed.h programs.h defines.h globals.h \
-  channel.h note.h envelope.h filter.h util.h readwave.h
-programs.o: programs.cpp programs.h fixed.h globals.h channel.h note.h \
-  envelope.h filter.h defines.h util.h
-readwave.o: readwave.cpp readwave.h programs.h fixed.h util.h
-util.o: util.cpp util.h programs.h fixed.h globals.h channel.h note.h \
-  envelope.h filter.h defines.h
+  note_funcs.h channel.h note_skel.h defines.h util.h globals.h \
+  note_loader.h
+note.o: note.cpp note.h programs.h fixed.h note_funcs.h envelope.h \
+  filter.h note_skel.h globals.h channel.h defines.h util.h
+note_skel.o: note_skel.cpp note_skel.h programs.h fixed.h note_funcs.h \
+  globals.h channel.h defines.h util.h
+parser.o: parser.cpp parser.h fixed.h programs.h note_funcs.h defines.h \
+  globals.h channel.h note_skel.h util.h readwave.h
+programs.o: programs.cpp programs.h fixed.h note_funcs.h globals.h \
+  channel.h note_skel.h defines.h util.h
+readwave.o: readwave.cpp readwave.h programs.h fixed.h note_funcs.h \
+  util.h
+util.o: util.cpp util.h programs.h fixed.h note_funcs.h globals.h \
+  channel.h note_skel.h defines.h
+note_loader.o: note_loader.cpp note_loader.h programs.h fixed.h \
+  note_funcs.h globals.h channel.h note_skel.h defines.h util.h

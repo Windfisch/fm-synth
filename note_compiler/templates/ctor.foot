@@ -1,0 +1,11 @@
+	portamento_frames=0;
+	set_portamento_frames(pf);
+		
+	set_note(n);
+	freq=dest_freq;
+	set_vel(v);
+	
+	pitchbend=pb;
+	
+	program=prg_no;
+}

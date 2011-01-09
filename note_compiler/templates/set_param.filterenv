@@ -1,0 +1,34 @@
+		case FILTER_ATTACK:
+			if (filter_params.enabled)
+				filter_envelope->set_attack(v*samp_rate/filter_update_frames >>SCALE);
+			else
+				output_note("NOTE: cannot set filter-attack when filter is disabled");
+			break;
+
+		case FILTER_DECAY:
+			if (filter_params.enabled)
+				filter_envelope->set_decay(v*samp_rate/filter_update_frames >>SCALE);
+			else
+				output_note("NOTE: cannot set filter-decay when filter is disabled");
+			break;
+
+		case FILTER_SUSTAIN:
+			if (filter_params.enabled)
+				filter_envelope->set_sustain(v);
+			else
+				output_note("NOTE: cannot set filter-sustain when filter is disabled");
+			break;
+
+		case FILTER_RELEASE:
+			if (filter_params.enabled)
+				filter_envelope->set_release(v*samp_rate/filter_update_frames >>SCALE);
+			else
+				output_note("NOTE: cannot set filter-release when filter is disabled");
+			break;
+
+		case FILTER_HOLD:
+			if (filter_params.enabled)
+				filter_envelope->set_hold(v!=0);
+			else
+				output_note("NOTE: cannot set filter-hold when filter is disabled");
+			break;
