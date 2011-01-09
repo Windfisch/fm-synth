@@ -49,6 +49,16 @@ TODO für den synth
    * filter optimieren? (arbeiten momentan mit floats) [verschoben]
      verstehen, optimieren und dann profilen
    x stimmt die stereo-implementierung?  [ja]
+   x BUG: bei Note::set_param sollte statt dem eigentlichen param
+          der orig gesetzt werden und dann neu berechnet werden!
+   x BUG: bei release und reattack: BEIDE male die filter-envelope beachten!
+   x oscval-nullen kann in get_sample() weggelassen werden
+   x in get_sample(), beim aufaddieren zum out (und vmtl auch fm-)wert:
+     erst nach dem addieren scalen, statt für jeden faktor einzeln
+   x filter_envelope könnte mit anderem ctor geinitet werden (weniger schreibarbeit)
+   x notes compilieren und als .so-datei laden
+   x parser-klasse durch parse-funktion ersetzen
+   x sostenuto-, halte-, legato-pedal
 
 
 TODO fürs CLI
