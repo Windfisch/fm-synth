@@ -13,6 +13,7 @@
 #include "defines.h"
 #include "globals.h"
 #include "note_loader.h"
+#include "in_synth_cli.h"
 
 using namespace std;
 
@@ -158,9 +159,7 @@ int main(int argc, char** argv)
 		
 		start_jack(connect_audio, connect_midi);
 		
-		char tmp[10];
-		gets(tmp);
-		cout << "end."<< endl;
+		do_in_synth_cli();
 		
 		cleanup();
 	}
