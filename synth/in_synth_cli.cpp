@@ -8,6 +8,7 @@
 #include "util.h"
 #include "communication.h"
 #include "globals.h"
+#include "load.h"
 
 using namespace std;
 
@@ -49,8 +50,16 @@ void lock_and_load_program(int prg_no, string file)
 {
 	do_request(prg_no, true);
 	
-	//TODO load the program
-	usleep(5000000);
+	if (load_program(file,program_settings[prg_no]))
+	{
+		cout << "success" << endl;
+		programfile[prg_no]=file;
+	}
+	else
+		cout << "failed" << endl;
+	
+	for (int i=0;i<N_CHANNELS;i++)
+		channel[i]->maybe_reload_program(prg_no);
 	
 	do_request(prg_no, false);
 }

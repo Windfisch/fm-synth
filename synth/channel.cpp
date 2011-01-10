@@ -435,6 +435,12 @@ void Channel::kill_program(int prog)
 			it++;
 }
 
+void Channel::maybe_reload_program(int prog)
+{
+	if (program==prog)
+		curr_prg=program_settings[prog];
+}
+
 void Channel::release_all()
 {
 	list<NoteSkel*>::iterator it;

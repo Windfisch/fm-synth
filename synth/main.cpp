@@ -6,15 +6,14 @@
 #include "jack.h"
 #include "load.h"
 #include "cli.h"
-#include "parser.h"
 #include "channel.h"
 #include "fixed.h"
 #include "programs.h"
 #include "defines.h"
 #include "globals.h"
-#include "note_loader.h"
 #include "in_synth_cli.h"
 #include "communication.h"
+#include "note_loader.h"
 
 using namespace std;
 
@@ -76,7 +75,6 @@ int main(int argc, char** argv)
 		int i,j;
 
 
-		program_t default_program;
 		init_default_program(default_program);
 
 		//two possible divisions by zero are avoided, because
@@ -108,41 +106,7 @@ int main(int argc, char** argv)
 		{
 			program_lock[i]=false;
 			
-			if (programfile[i]!="")
-			{
-				try
-				{
-					program_settings[i]=parse(programfile[i]);
-					
-					// try to load the appropriate .so file
-					if (access(  (programfile[i]+".so").c_str(), R_OK ) == 0)
-					{
-						try
-						{
-							load_note_from_so(programfile[i]+".so", program_settings[i]);
-							output_verbose("NOTE: loaded shared object for program '"+programfile[i]+"'");
-						}
-						catch (string err)
-						{
-							output_note("NOTE: could not load shared object '"+programfile[i]+".so"+"':\n"
-							            "  "+err+"\n"
-							            "  this is not fatal, the note has been loaded properly, but generic\n"
-							            "  unoptimized (slow) code will be used.");
-						}        
-					}
-				}
-				catch (string err)
-				{
-					output_warning("WARNING: error parsing '"+programfile[i]+"': "+err+"\n"
-					               "  this is not fatal, but the program has NOT been loaded! defaulting to a\n"
-					               "  simple program and going on...");
-					program_settings[i]=default_program;
-				}
-			}
-			else
-			{
-				program_settings[i]=default_program;
-			}
+			load_program(programfile[i],program_settings[i]);
 		}
 		
 		for (i=0;i<N_WAVEFORMS;i++)

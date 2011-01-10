@@ -1,7 +1,12 @@
+!!! SEGFAULT beim laden einer nicht-existenten datei per in-synth-cli
+    wenn man danach die noten spielen will. nicht reproduzierbar
+
 TODO für den synth
    o bei envelopes: releasephase abschalten (bei sustain bleiben)
 
    o programme on-the-fly (um)laden
+     beim entladen des alten programms: ggf. shared objekt löschen
+     
    o RAM aufräumen?
 
    o beide parser: envelopes von oscs mit out=0 standardmäßig deaktivieren

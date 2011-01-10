@@ -67,6 +67,8 @@ extern string programfile[128];
 extern program_t *program_settings;
 extern bool program_lock[128];
 
+extern program_t default_program;
+
 extern Channel *channel[N_CHANNELS];
 
 

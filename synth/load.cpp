@@ -7,6 +7,8 @@
 
 #include "util.h"
 #include "globals.h"
+#include "parser.h"
+#include "note_loader.h"
 
 
 using namespace std;
@@ -194,5 +196,50 @@ void read_config(const char *cfg, bool complain=true)
 	else
 	{
 		output_warning("WARNING: could not open config file '"+string(cfg)+"'.\nignoring this file...");
+	}
+}
+
+bool load_program(string file, program_t& prog)
+{
+	if (file!="")
+	{
+		try
+		{
+			prog=parse(file);
+			
+			// try to load the appropriate .so file
+			if (access(  (file+".so").c_str(), R_OK ) == 0)
+			{
+				try
+				{
+					load_note_from_so(file+".so", prog);
+					output_verbose("NOTE: loaded shared object for program '"+file+"'");
+				}
+				catch (string err)
+				{
+					output_note("NOTE: could not load shared object '"+file+".so"+"':\n"
+											"  "+err+"\n"
+											"  this is not fatal, the note has been loaded properly, but generic\n"
+											"  unoptimized (slow) code will be used.");
+				}        
+			}
+			
+			return true;
+		}
+		catch (string err)
+		{
+			output_warning("WARNING: error parsing '"+file+"': "+err+"\n"
+										 "  this is not fatal, but the program has NOT been loaded! defaulting to a\n"
+										 "  simple program and going on...");
+			prog=default_program;
+			
+			return false;
+		}
+	}
+	else
+	{
+		prog=default_program;
+		
+		return true;
 	}
 }
