@@ -21,6 +21,7 @@ class NoteSkel
 		void set_freq(float f, bool do_port);
 		void set_pitchbend(fixed_t pb);
 		void set_vel(float v);
+		void set_vol_factor(float vol_fac);
 		void set_portamento_frames(jack_nframes_t f);
 
 		virtual void release_quickly(jack_nframes_t maxt)=0;
@@ -44,6 +45,7 @@ class NoteSkel
 		jack_nframes_t portamento_t, portamento_frames;
 		
 		pfactor_value_t pfactor;
+		float volume_factor;
 		
 		int note;
 		int program;

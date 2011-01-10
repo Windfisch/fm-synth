@@ -14,7 +14,7 @@ struct program_t;
 typedef void output_note_func_t(string s);
 typedef string IntToStr_func_t(int i);
 
-typedef NoteSkel* create_func_t (int, float, program_t&, jack_nframes_t, fixed_t, int);
+typedef NoteSkel* create_func_t (int, float, program_t&, jack_nframes_t, fixed_t, int, float);
 typedef void init_func_t(int sr, int fupfr, fixed_t **w, fixed_t **clfo, output_note_func_t* out_n, IntToStr_func_t* its);
 
 #endif

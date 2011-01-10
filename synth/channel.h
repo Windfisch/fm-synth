@@ -40,6 +40,7 @@ class Channel
 		void set_hold_pedal(bool newstate);
 		void set_sostenuto_pedal(bool newstate);
 		void set_legato_pedal(bool newstate);
+		void set_soft_pedal(bool newstate);
 		
 		float balL, balR;
 	private:
@@ -71,6 +72,8 @@ class Channel
 		set<int> sostenuto_keys;
 		
 		bool legato_pedal_pressed;
+		
+		float curr_vol_factor;
 };
 
 #endif

@@ -24,7 +24,6 @@ void init_oscs(int n_osc, oscillator_t *osc)
 		
 		osc[i].output=0;
 		osc[i].output_const=true;
-		osc[i].output_no_pfactor=false;
 		osc[i].waveform=0;
 		osc[i].waveform_const=true;
 		osc[i].factor=ONE;
@@ -370,13 +369,9 @@ program_t parse(string fn)
 								osc[ind].fm_strength_const[ind2]=false;
 								break;
 							case OUTPUT:
-								if (state==4) // vel.-influence
-								{
-									if (isfloat(strval)) //is it a plain number, not a formula?
-										osc[ind].output_no_pfactor=true;
-								}
-								else
-									osc[ind].output_const=false; break;
+								if (state!=4) // not vel.-influence
+									osc[ind].output_const=false;
+								break;
 							case WAVEFORM:
 								osc[ind].waveform_const=false; break;
 							case FACTOR:
@@ -481,7 +476,7 @@ program_t parse(string fn)
 		
 		
 		for (int i=0;i<n_osc;i++)
-			if ( (osc[i].output_no_pfactor==false) && !((osc[i].output==0) && (osc[i].output_const=true)) )
+			if ( !((osc[i].output==0) && (osc[i].output_const=true)) )
 				osc[i].output_const=false;
 		
 		//end optimizations and checks

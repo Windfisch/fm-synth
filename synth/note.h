@@ -12,7 +12,7 @@
 class Note : public NoteSkel
 {
 	public:
-		Note(int n, float v,program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no);
+		Note(int n, float v,program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no, float vol_fac);
 		~Note();
 		fixed_t get_sample();
 

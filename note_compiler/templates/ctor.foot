@@ -4,6 +4,7 @@
 	set_note(n);
 	freq=dest_freq;
 	set_vel(v);
+	set_vol_factor(vol_fac);
 	
 	pitchbend=pb;
 	

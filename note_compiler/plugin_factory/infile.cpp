@@ -26,7 +26,7 @@ IntToStr_func_t* IntToStr=NULL;
 class Note : public NoteSkel
 {
 	public:
-		Note(int n, float v,program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no);
+		Note(int n, float v,program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no, float vol_fac);
 		~Note();
 		fixed_t get_sample();
 
@@ -58,17 +58,14 @@ class Note : public NoteSkel
 
 		//sync is disabled
 
-		LowPassFilter filter;
-		filter_params_t filter_params;
-		int filter_update_counter;
-		Envelope *filter_envelope;
+		//filter is disabled
 
 		pfactor_value_t pfactor;
 		struct
 		{
 			oscillator_t osc0;
 			oscillator_t osc1;
-			filter_params_t filter_params;
+			//filter is disabled
 		} orig;
 // member variables end here
 };
@@ -82,7 +79,7 @@ inline fixed_t init_custom_osc_phase(int len, fixed_t sr)
 }
 
 
-Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no)
+Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no, float vol_fac)
 {
 	curr_prg=&prg;
 	
@@ -106,15 +103,9 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	
 	//initalize oscillator.phase to multiples of their wave resolution
 	osc0.phase=ONE * PHASE_INIT;
-	osc1.phase=init_custom_osc_phase(osc1.custom_wave->wave_len, osc1.custom_wave->samp_rate);
+	osc1.phase=ONE * PHASE_INIT;
 	
 	do_ksl();
-	
-	
-	filter_params=prg.filter_settings;
-	orig.filter_params=prg.filter_settings;
-	filter_envelope=new Envelope(filter_params.env_settings);
-	filter_update_counter=filter_update_frames;
 	
 	
 	portamento_frames=0;
@@ -123,6 +114,7 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	set_note(n);
 	freq=dest_freq;
 	set_vel(v);
+	set_vol_factor(vol_fac);
 	
 	pitchbend=pb;
 	
@@ -153,13 +145,9 @@ void Note::destroy()
 
 void Note::recalc_factors()
 {
-	pfactor.filter_env=calc_pfactor(curr_prg->pfactor.filter_env, vel);
-	pfactor.filter_res=calc_pfactor(curr_prg->pfactor.filter_res, vel);
-	pfactor.filter_offset=calc_pfactor(curr_prg->pfactor.filter_offset, vel);
-	
 	for (int i=0;i<2;i++)
 	{
-		pfactor.out[i]=calc_pfactor(curr_prg->pfactor.out[i], vel);
+		pfactor.out[i]=calc_pfactor(curr_prg->pfactor.out[i], vel) * volume_factor;
 		
 		for (int j=0;j<2;j++)
 			pfactor.fm[i][j]=calc_pfactor(curr_prg->pfactor.fm[i][j], vel);
@@ -167,10 +155,6 @@ void Note::recalc_factors()
 }
 void Note::apply_pfactor()
 {
-	filter_params.env_amount=orig.filter_params.env_amount*pfactor.filter_env /ONE;
-	filter_params.freqfactor_offset=orig.filter_params.freqfactor_offset*pfactor.filter_offset /ONE;
-	filter_params.resonance=orig.filter_params.resonance*pfactor.filter_res /ONE;
-	
 	osc0.output=orig.osc0.output*pfactor.out[0] >>SCALE;
 	for (int i=0;i<2;i++)
 		osc0.fm_strength[i]=orig.osc0.fm_strength[i]*pfactor.fm[0][i] >>SCALE;
@@ -191,8 +175,6 @@ void Note::release()
 {
 	env0->release_key();
 	env1->release_key();
-
-	filter_envelope->release_key();
 }
 void Note::release_quickly(jack_nframes_t maxt)
 {
@@ -209,8 +191,6 @@ void Note::reattack()
 {
 	env0->reattack();
 	env1->reattack();
-
-	filter_envelope->reattack();
 }
 
 void Note::do_ksr()
@@ -249,29 +229,18 @@ fixed_t Note::get_sample()
 	//sync is disabled
 	
 	
-	osc0.phase+= (actual_freq*osc0.factor/samp_rate)>>SCALE;
-	oscval[0] = wave[0][ ( (  osc0.phase + ( + (old_oscval[1] * osc0.fm_strength[1]) >>SCALE )  ) * WAVE_RES   >>SCALE ) % WAVE_RES ] * env0->get_level()  >>SCALE;
-	//oscillator0 has no tremolo
+	osc0.phase+= ( (osc0.vibrato_depth==0) ? ((actual_freq*osc0.factor/samp_rate)>>SCALE) : ((  (curr_lfo[osc0.vibrato_lfo][osc0.vibrato_depth]*actual_freq >>SCALE)*osc0.factor/samp_rate)>>SCALE) );
+	oscval[0] = wave[1][ ( (  osc0.phase + ( + (old_oscval[0] * 104857) + (old_oscval[1] * osc0.fm_strength[1]) >>SCALE )  ) * WAVE_RES   >>SCALE ) % WAVE_RES ] * env0->get_level()  >>SCALE;
+	if (osc0.tremolo_depth)
+		oscval[0] = oscval[0] * curr_lfo[0][osc0.tremolo_depth]  >>SCALE;
 	
-	osc1.phase+= (actual_freq*osc1.factor/samp_rate)>>SCALE;
-	oscval[1] = osc1.custom_wave->wave[ (     osc1.phase * osc1.custom_wave->samp_rate   >>(2*SCALE)     ) % osc1.custom_wave->wave_len ] * env1->get_level()  >>SCALE;
+	osc1.phase+= (  (curr_lfo[osc1.vibrato_lfo][osc1.vibrato_depth]*actual_freq >>SCALE)*osc1.factor/samp_rate)>>SCALE;
+	oscval[1] = wave[0][ ( osc1.phase * WAVE_RES   >>SCALE ) % WAVE_RES ] * env1->get_level()  >>SCALE;
 	//oscillator1 has no tremolo
 	
-	fixed_t out = ( + osc0.output*oscval[0] + osc1.output*oscval[1]    >>SCALE );
+	fixed_t out = ( + osc0.output*oscval[0]    >>SCALE );
 	
 	
-	filter_update_counter++;
-	if (filter_update_counter>=filter_update_frames)
-	{
-		filter_update_counter=0;
-		
-		float cutoff= float(actual_freq)/ONE * 
-			float(curr_lfo[filter_params.trem_lfo][filter_params.trem_strength])/ONE *
-			( filter_params.freqfactor_offset  +  filter_envelope->get_level() * filter_params.env_amount / float(ONE) );
-		filter.set_params( cutoff, filter_params.resonance  );
-	}
-	
-	filter.process_sample(&out);
 	
 	return out;
 }
@@ -318,47 +287,18 @@ void Note::set_param(const parameter_t &p, fixed_t v)
 		case MODULATION: sel_orig_osc->fm_strength[p.index]=v; apply_pfactor(); break;
     case OUTPUT: sel_orig_osc->output=v; apply_pfactor(); break;
 
-		
-		case FILTER_ENABLED: output_note("NOTE: cannot enable filter in playing notes"); break;
-		case FILTER_ENV_AMOUNT: orig.filter_params.env_amount=float(v)/ONE; apply_pfactor(); break;
-		case FILTER_OFFSET: orig.filter_params.freqfactor_offset=float(v)/ONE; apply_pfactor(); break;
-		case FILTER_RESONANCE: orig.filter_params.resonance=float(v)/ONE; apply_pfactor(); break;
-		case FILTER_TREMOLO: filter_params.trem_strength=v; break;
-		case FILTER_TREM_LFO: filter_params.trem_lfo=v; break;
-
+		case FILTER_ENABLED:
+		case FILTER_ENV_AMOUNT:
 		case FILTER_ATTACK:
-			if (filter_params.enabled)
-				filter_envelope->set_attack(v*samp_rate/filter_update_frames >>SCALE);
-			else
-				output_note("NOTE: cannot set filter-attack when filter is disabled");
-			break;
-
 		case FILTER_DECAY:
-			if (filter_params.enabled)
-				filter_envelope->set_decay(v*samp_rate/filter_update_frames >>SCALE);
-			else
-				output_note("NOTE: cannot set filter-decay when filter is disabled");
-			break;
-
 		case FILTER_SUSTAIN:
-			if (filter_params.enabled)
-				filter_envelope->set_sustain(v);
-			else
-				output_note("NOTE: cannot set filter-sustain when filter is disabled");
-			break;
-
 		case FILTER_RELEASE:
-			if (filter_params.enabled)
-				filter_envelope->set_release(v*samp_rate/filter_update_frames >>SCALE);
-			else
-				output_note("NOTE: cannot set filter-release when filter is disabled");
-			break;
-
 		case FILTER_HOLD:
-			if (filter_params.enabled)
-				filter_envelope->set_hold(v!=0);
-			else
-				output_note("NOTE: cannot set filter-hold when filter is disabled");
+		case FILTER_OFFSET:
+		case FILTER_RESONANCE:
+		case FILTER_TREMOLO:
+		case FILTER_TREM_LFO:
+			output_note("NOTE: trying to set some filter-param, but filter is disabled");
 			break;
 
 		
@@ -370,13 +310,13 @@ void Note::set_param(const parameter_t &p, fixed_t v)
 
 
 
-extern "C" NoteSkel* create_note(int n, float v,program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no)
+extern "C" NoteSkel* create_note(int n, float v,program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no, float vol_fac)
 {
 	if (wave==NULL)
 		throw string("FATAL: trying to create a new note from a shared object without initalizing\n"
 		             "  the object first! this should /never/ happen, please contact the developer");
 	
-	return new Note(n,v,prg,pf,pb,prg_no);
+	return new Note(n,v,prg,pf,pb,prg_no,vol_fac);
 }
 
 extern "C" void init_vars(int sr, int fupfr, fixed_t **w, fixed_t **clfo, output_note_func_t* out_n, IntToStr_func_t* its)

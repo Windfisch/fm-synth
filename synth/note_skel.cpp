@@ -62,6 +62,14 @@ void NoteSkel::set_vel(float v)
 	apply_pfactor();
 }
 
+void NoteSkel::set_vol_factor(float vol_fac)
+{
+	volume_factor=vol_fac;
+	
+	recalc_factors();
+	apply_pfactor();
+}
+
 void NoteSkel::set_portamento_frames(jack_nframes_t t)
 {
 	portamento_frames=t;
@@ -72,3 +80,4 @@ int NoteSkel::get_program()
 {
 	return program;
 }
+

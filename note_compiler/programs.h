@@ -47,7 +47,6 @@ struct oscillator_t
 	bool *fm_strength_const;
 	fixed_t output;      
 	bool output_const;      
-	bool output_no_pfactor;      
 	int waveform;
 	bool waveform_const;
 	fixed_t factor;

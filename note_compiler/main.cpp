@@ -109,7 +109,7 @@ void write_ctor()
 	int i;
 	string tabtmp="";
 	
-	out << "Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no)\n"
+	out << "Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no, float vol_fac)\n"
 	       "{\n"	
 	       "\tcurr_prg=&prg;\n"
 	       "\t\n"
@@ -234,7 +234,7 @@ void write_recalc_factors()
 	
 	out << "\tfor (int i=0;i<"<<prog.n_osc<<";i++)\n"
 				 "\t{\n"
-				 "\t\tpfactor.out[i]=calc_pfactor(curr_prg->pfactor.out[i], vel);\n"
+				 "\t\tpfactor.out[i]=calc_pfactor(curr_prg->pfactor.out[i], vel) * volume_factor;\n"
 				 "\t\t\n"
 				 "\t\tfor (int j=0;j<"<<prog.n_osc<<";j++)\n"
 				 "\t\t\tpfactor.fm[i][j]=calc_pfactor(curr_prg->pfactor.fm[i][j], vel);\n"

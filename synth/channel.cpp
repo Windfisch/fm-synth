@@ -28,6 +28,7 @@ Channel::Channel()
 	sostenuto_keys.clear();
 	hold_pedal_pressed=false;
 	legato_pedal_pressed=false;
+	curr_vol_factor=1.0;
 }
 
 Channel::~Channel()
@@ -117,12 +118,14 @@ void Channel::note_on(int note, int vel)
 					newnote = new Note(note,(float)vel/128.0,
 														 curr_prg,
 														 portamento_frames, pitchbend, 
-														 program);
+														 program,
+														 curr_vol_factor);
 				else
 					newnote = curr_prg.create_func(note,(float)vel/128.0,
 																				 curr_prg,
 																				 portamento_frames, pitchbend, 
-																				 program);
+																				 program,
+																				 curr_vol_factor);
 
 				notes.push_back(newnote);
 			}
@@ -132,6 +135,7 @@ void Channel::note_on(int note, int vel)
 				n->set_note(note,n->still_active());
 				n->set_vel((float)vel/128.0);
 				if ((legato_pedal_pressed==false) || !n->still_active()) n->reattack();
+				n->set_vol_factor(curr_vol_factor);
 				//no need to push back. would become #1 instead of #1
 			}
 		}
@@ -145,6 +149,7 @@ void Channel::note_on(int note, int vel)
 						neednewnote=false;
 						(*it)->reattack();
 						(*it)->set_vel((float)vel/128.0);
+						(*it)->set_vol_factor(curr_vol_factor);
 						notes.push_back(*it); //reorder notes
 						notes.erase(it);
 						break;
@@ -157,12 +162,14 @@ void Channel::note_on(int note, int vel)
 					newnote = new Note(note,(float)vel/128.0,
 														 curr_prg,
 														 portamento_frames, pitchbend, 
-														 program);
+														 program,
+														 curr_vol_factor);
 				else
 					newnote = curr_prg.create_func(note,(float)vel/128.0,
 																				 curr_prg,
 																				 portamento_frames, pitchbend, 
-																				 program);
+																				 program,
+																				 curr_vol_factor);
 
 				notes.push_back(newnote);
 			}
@@ -223,6 +230,7 @@ void Channel::set_controller(int con,int val)
 		case 65:  set_portamento(val); break;
 		case 64:  set_hold_pedal(val>=64); break;
 		case 66:  set_sostenuto_pedal(val>=64); break;
+		case 67:  set_soft_pedal(val>=64); break;
 		case 68:  set_legato_pedal(val>=64); break;
 		case 119: set_quick_release(val);
 		case 120: panic(); break;
@@ -393,6 +401,11 @@ void Channel::set_sostenuto_pedal(bool newstate)
 void Channel::set_legato_pedal(bool newstate)
 {
 	legato_pedal_pressed=newstate;
+}
+
+void Channel::set_soft_pedal(bool newstate)
+{
+	curr_vol_factor = (newstate==false) ? 1.0 : 0.5; //TODO richtigen wert!
 }
 	
 void Channel::panic()

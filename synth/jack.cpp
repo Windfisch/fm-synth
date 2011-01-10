@@ -12,7 +12,7 @@
 
 using namespace std;
 
-#define DO_DEBUGGING_EVENTS
+//#define DO_DEBUGGING_EVENTS
 
 jack_port_t	*midi_in;
 jack_port_t *out_port[N_CHANNELS];

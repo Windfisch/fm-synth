@@ -14,12 +14,9 @@ inline fixed_t init_custom_osc_phase(int len, fixed_t sr)
 }
 
 
-Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no)
+Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no, float vol_fac)
 {	
-	
 	curr_prg=&prg;
-		
-
 	
 		
 	n_oscillators=prg.n_osc;
@@ -92,6 +89,7 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	set_note(n);
 	freq=dest_freq;
 	set_vel(v);
+	set_vol_factor(vol_fac);
 	
 	pitchbend=pb;
 	
@@ -132,7 +130,7 @@ void Note::recalc_factors()
 	
 	for (int i=0;i<n_oscillators;i++)
 	{
-		pfactor.out[i]=calc_pfactor(curr_prg->pfactor.out[i], vel);
+		pfactor.out[i]=calc_pfactor(curr_prg->pfactor.out[i], vel) * volume_factor;
 
 		for (int j=0;j<n_oscillators;j++)
 			pfactor.fm[i][j]=calc_pfactor(curr_prg->pfactor.fm[i][j], vel);

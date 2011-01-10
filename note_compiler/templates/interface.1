@@ -1,10 +1,10 @@
-extern "C" NoteSkel* create_note(int n, float v,program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no)
+extern "C" NoteSkel* create_note(int n, float v,program_t &prg, jack_nframes_t pf, fixed_t pb, int prg_no, float vol_fac)
 {
 	if (wave==NULL)
 		throw string("FATAL: trying to create a new note from a shared object without initalizing\n"
 		             "  the object first! this should /never/ happen, please contact the developer");
 	
-	return new Note(n,v,prg,pf,pb,prg_no);
+	return new Note(n,v,prg,pf,pb,prg_no,vol_fac);
 }
 
 extern "C" void init_vars(int sr, int fupfr, fixed_t **w, fixed_t **clfo, output_note_func_t* out_n, IntToStr_func_t* its)
