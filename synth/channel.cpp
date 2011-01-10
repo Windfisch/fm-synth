@@ -100,82 +100,86 @@ void Channel::note_on(int note, int vel)
 	{
 		pressed_keys.insert(note);
 		
-		if ( (n_voices==1) && (!notes.empty()) ) //we're in monomode
-		{
-			//no need to create a new note; reuse the existing
-			NoteSkel *n; //i'm lazy
-			n= *(notes.begin());
-			
-			if (n->get_program() != program)
+		if (program_lock[program]==false)
+		{		
+			if ( (n_voices==1) && (!notes.empty()) ) //we're in monomode
 			{
-				//if the program has changed, kill the previous note and
-				//create a new one
-				n->destroy();
-				notes.clear();
+				//no need to create a new note; reuse the existing
+				NoteSkel *n; //i'm lazy
+				n= *(notes.begin());
 				
-				NoteSkel *newnote=NULL;
-				if (curr_prg.create_func==NULL)
-					newnote = new Note(note,(float)vel/128.0,
-														 curr_prg,
-														 portamento_frames, pitchbend, 
-														 program,
-														 curr_vol_factor);
-				else
-					newnote = curr_prg.create_func(note,(float)vel/128.0,
-																				 curr_prg,
-																				 portamento_frames, pitchbend, 
-																				 program,
-																				 curr_vol_factor);
+				if (n->get_program() != program)
+				{
+					//if the program has changed, kill the previous note and
+					//create a new one
+					n->destroy();
+					notes.clear();
+					
+					NoteSkel *newnote=NULL;
+					if (curr_prg.create_func==NULL)
+						newnote = new Note(note,(float)vel/128.0,
+															 curr_prg,
+															 portamento_frames, pitchbend, 
+															 program,
+															 curr_vol_factor);
+					else
+						newnote = curr_prg.create_func(note,(float)vel/128.0,
+																					 curr_prg,
+																					 portamento_frames, pitchbend, 
+																					 program,
+																					 curr_vol_factor);
 
-				notes.push_back(newnote);
+					notes.push_back(newnote);
+				}
+				else //program did not change
+				{
+					//if not still active, don't do portamento
+					n->set_note(note,n->still_active());
+					n->set_vel((float)vel/128.0);
+					if ((legato_pedal_pressed==false) || !n->still_active()) n->reattack();
+					n->set_vol_factor(curr_vol_factor);
+					//no need to push back. would become #1 instead of #1
+				}
 			}
-			else //program did not change
+			else //we're in polymode
 			{
-				//if not still active, don't do portamento
-				n->set_note(note,n->still_active());
-				n->set_vel((float)vel/128.0);
-				if ((legato_pedal_pressed==false) || !n->still_active()) n->reattack();
-				n->set_vol_factor(curr_vol_factor);
-				//no need to push back. would become #1 instead of #1
+				bool neednewnote=true;
+				//if (always_reattack) always_reattack is always true when in polymode
+					for (it=notes.begin(); it!=notes.end(); it++)
+						if ( ((*it)->get_note()==note) && ((*it)->get_program()==program) )
+						{
+							neednewnote=false;
+							(*it)->reattack();
+							(*it)->set_vel((float)vel/128.0);
+							(*it)->set_vol_factor(curr_vol_factor);
+							notes.push_back(*it); //reorder notes
+							notes.erase(it);
+							break;
+						}
+
+				if (neednewnote)
+				{
+					NoteSkel *newnote=NULL;
+					if (curr_prg.create_func==NULL)
+						newnote = new Note(note,(float)vel/128.0,
+															 curr_prg,
+															 portamento_frames, pitchbend, 
+															 program,
+															 curr_vol_factor);
+					else
+						newnote = curr_prg.create_func(note,(float)vel/128.0,
+																					 curr_prg,
+																					 portamento_frames, pitchbend, 
+																					 program,
+																					 curr_vol_factor);
+
+					notes.push_back(newnote);
+				}
+
+				apply_voice_limit();
 			}
 		}
-		else //we're in polymode
-		{
-			bool neednewnote=true;
-			//if (always_reattack) always_reattack is always true when in polymode
-				for (it=notes.begin(); it!=notes.end(); it++)
-					if ( ((*it)->get_note()==note) && ((*it)->get_program()==program) )
-					{
-						neednewnote=false;
-						(*it)->reattack();
-						(*it)->set_vel((float)vel/128.0);
-						(*it)->set_vol_factor(curr_vol_factor);
-						notes.push_back(*it); //reorder notes
-						notes.erase(it);
-						break;
-					}
-
-			if (neednewnote)
-			{
-				NoteSkel *newnote=NULL;
-				if (curr_prg.create_func==NULL)
-					newnote = new Note(note,(float)vel/128.0,
-														 curr_prg,
-														 portamento_frames, pitchbend, 
-														 program,
-														 curr_vol_factor);
-				else
-					newnote = curr_prg.create_func(note,(float)vel/128.0,
-																				 curr_prg,
-																				 portamento_frames, pitchbend, 
-																				 program,
-																				 curr_vol_factor);
-
-				notes.push_back(newnote);
-			}
-
-			apply_voice_limit();
-		}
+		// else (if the program is locked) simply ignore the note-on
 	}                                                  
 	else //note off
 	{
@@ -416,6 +420,19 @@ void Channel::panic()
 		(*it)->destroy();
 		it=notes.erase(it);
 	}
+}
+
+void Channel::kill_program(int prog)
+{
+	list<NoteSkel*>::iterator it;
+	for (it=notes.begin(); it!=notes.end();)
+		if ((*it)->get_program()==prog)
+		{
+			(*it)->destroy();
+			it=notes.erase(it);
+		}
+		else
+			it++;
 }
 
 void Channel::release_all()

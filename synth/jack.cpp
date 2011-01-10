@@ -9,6 +9,7 @@
 #include "globals.h"
 
 #include "jack.h"
+#include "communication.h"
 
 using namespace std;
 
@@ -21,6 +22,28 @@ jack_port_t *out_port2[N_CHANNELS];
 #endif
 
 jack_client_t	*jack_client = NULL;
+
+
+void manage_program_lock(int prog, bool lock) //TODO woandershinschieben?
+{
+	program_lock[prog]=lock;
+	
+	if (lock)
+		for (int i=0;i<N_CHANNELS;i++)
+			channel[i]->kill_program(prog);
+}
+
+void process_request()
+{
+	if (suspend_request.prog==-1)
+		for (int i=0;i<128;i++)
+			manage_program_lock(i,suspend_request.suspend);
+	else
+		manage_program_lock(suspend_request.prog,suspend_request.suspend);
+	
+	suspend_request.done=true;
+}
+
 
 
 void maybe_calc_stuff() //TODO woandershinschieben? lfo.cpp oder so?
@@ -263,6 +286,17 @@ int process_callback(jack_nframes_t nframes, void *notused)
 		return 0;
 	}
 
+
+
+	pthread_mutex_lock(&suspend_request_mutex);
+	if (suspend_request.done==false)
+		process_request();
+	pthread_mutex_unlock(&suspend_request_mutex);
+
+
+
+
+
 	for (i=0;i<N_CHANNELS;i++)
 	{
 		outbuf[i]=(jack_default_audio_sample_t*) jack_port_get_buffer(out_port[i], nframes);
@@ -499,5 +533,4 @@ int process_callback(jack_nframes_t nframes, void *notused)
 #endif	
 	return 0;
 }
-
 

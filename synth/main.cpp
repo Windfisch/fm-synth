@@ -14,6 +14,7 @@
 #include "globals.h"
 #include "note_loader.h"
 #include "in_synth_cli.h"
+#include "communication.h"
 
 using namespace std;
 
@@ -24,6 +25,8 @@ void dump_options();
 
 int main(int argc, char** argv)
 {
+	init_communication();
+	
   for (int i=0;i<N_LFOS;i++)
   	lfo_freq_hz[i]=0;
   
@@ -103,6 +106,8 @@ int main(int argc, char** argv)
 
 		for (i=0;i<128;i++)
 		{
+			program_lock[i]=false;
+			
 			if (programfile[i]!="")
 			{
 				try
@@ -177,7 +182,9 @@ int main(int argc, char** argv)
 void cleanup()
 {
 	exit_jack();
-		
+	
+	uninit_communication();
+	
 	for (int i=0;i<N_CHANNELS;i++)
 	{
 		delete channel[i];

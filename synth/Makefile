@@ -3,7 +3,7 @@ CFLAGS=-Wall -g
 CXXFLAGS=$(CFLAGS)
 LDFLAGS=-lm `pkg-config --cflags --libs jack`
 
-OBJ=channel.o cli.o defines.o envelope.o filter.o globals.o jack.o load.o main.o note.o note_skel.o parser.o programs.o readwave.o util.o note_loader.o in_synth_cli.o
+OBJ=channel.o cli.o defines.o envelope.o filter.o globals.o jack.o load.o main.o note.o note_skel.o parser.o programs.o readwave.o util.o note_loader.o in_synth_cli.o communication.o
 BIN=synth
 
 DEPENDFILE = .depend

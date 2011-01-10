@@ -1,9 +1,13 @@
 #include <iostream>
 #include <string>
 #include <signal.h>
+#include <unistd.h>
+#include <stdlib.h>
 
 #include "in_synth_cli.h"
 #include "util.h"
+#include "communication.h"
+#include "globals.h"
 
 using namespace std;
 
@@ -14,16 +18,53 @@ void signal_handler(int sig)
 	cout << endl << PROMPT << flush;
 }
 
+void do_request(int prg_no, bool susp)
+{
+	pthread_mutex_lock(&suspend_request_mutex);
+	
+	suspend_request.prog=prg_no;
+	suspend_request.suspend=susp;
+	suspend_request.done=false;
+	
+	pthread_mutex_unlock(&suspend_request_mutex);
+	
+	
+	
+	while (true)
+	{
+		usleep(100000);
+
+		pthread_mutex_lock(&suspend_request_mutex);
+		if (suspend_request.done)
+		{
+			pthread_mutex_unlock(&suspend_request_mutex);
+			break;
+		}
+		else
+			pthread_mutex_unlock(&suspend_request_mutex);
+	}
+}
+
+void lock_and_load_program(int prg_no, string file)
+{
+	do_request(prg_no, true);
+	
+	//TODO load the program
+	usleep(5000000);
+	
+	do_request(prg_no, false);
+}
+
 void do_in_synth_cli()
 {
 	string input;
 	string command;
 	string params;
+	int num;
 	
 	if (signal(2,signal_handler)==SIG_ERR)
-	{
-		cout << "WARNING: failed to set signal handler!" << endl;
-	}
+		output_warning("WARNING: failed to set signal handler in the in-synth-cli. pressing enter will\n"
+		               "         kill the synth, so be careful. this is not fatal");
 
 
 	while (true)
@@ -43,7 +84,8 @@ void do_in_synth_cli()
 				cout << "error: expected program-number, found '"<<params<<"'"<<endl;
 			else
 			{
-				//TODO: load program
+				num=atoi(params.c_str());
+				lock_and_load_program(num, programfile[num]);
 			}
 		}
 		else if (command=="load")
@@ -58,7 +100,10 @@ void do_in_synth_cli()
 				cout << "error: expected program-file to load, found nothing"<<endl;
 			else
 			{
-				//TODO: load program
+				num=atoi(params.c_str());
+				lock_and_load_program(num, file);
+				
+				programfile[num]=file;
 			}
 		}
 		else if (command!="")

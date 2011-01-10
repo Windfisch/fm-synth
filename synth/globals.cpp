@@ -54,6 +54,7 @@ string programfile[128];
 
 
 program_t *program_settings;
+bool program_lock[128];
 
 
 Channel *channel[N_CHANNELS];
