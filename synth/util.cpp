@@ -175,24 +175,34 @@ parameter_enum param_to_enum(string param)
 		return UNKNOWN;
 }
 
-string extract_var(string s)
+string str_before(string s, char delim, string onfail)
 {
 	size_t p;
-	p=s.find('=');
+	p=s.find(delim);
 	if (p!=string::npos)
 		return s.substr(0,p);
 	else
-		return "";
+		return onfail;
+}
+
+string str_after(string s, char delim, string onfail)
+{
+	size_t p;
+	p=s.find(delim);
+	if (p!=string::npos)
+		return s.substr(p+1);
+	else
+		return onfail;
+}
+
+string extract_var(string s)
+{
+	return str_before(s,'=',"");
 }
 
 string extract_val(string s)
 {
-	size_t p;
-	p=s.find('=');
-	if (p!=string::npos)
-		return s.substr(p+1);
-	else
-		return s;
+	return str_after(s,'=',s);
 }
 
 string fileext(string f)

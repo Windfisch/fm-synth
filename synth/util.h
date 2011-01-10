@@ -28,4 +28,6 @@ string extract_val(string s);
 string fileext(string f);
 
 
+string str_before(string s, char delim, string onfail="");
+string str_after(string s, char delim, string onfail="");
 #endif
