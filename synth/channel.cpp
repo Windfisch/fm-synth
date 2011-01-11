@@ -39,12 +39,14 @@ Channel::~Channel()
 void Channel::cleanup()
 {
 	list<NoteSkel*>::iterator it;
-	for (it=notes.begin(); it!=notes.end(); it++)
+	for (it=notes.begin(); it!=notes.end();)
 		if ((*it)->still_active()==false)
 		{
 			(*it)->destroy();
 			it=notes.erase(it);
 		}
+		else
+			it++;
 }
 
 fixed_t Channel::get_sample()
