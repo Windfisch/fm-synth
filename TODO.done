@@ -60,6 +60,7 @@ TODO für den synth
    x notes compilieren und als .so-datei laden
    x parser-klasse durch parse-funktion ersetzen
    x sostenuto-, halte-, legato-, soft-pedal
+   x programme on-the-fly (um)laden
 
 
 TODO fürs CLI

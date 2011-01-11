@@ -6,6 +6,7 @@
 #include "programs.h"
 #include "note_funcs.h"
 #include "globals.h"
+#include "shared_object_manager.h"
 
 using namespace std;
 
@@ -13,10 +14,7 @@ void load_note_from_so(string file, program_t &prog)
 {
 	void *handle;
 	
-	handle = dlopen(file.c_str(), RTLD_LAZY);
-	
-	if (handle==NULL)
-		throw string("could not open shared object (")+string(dlerror())+string(")");
+	handle = my_dlopen(file);
 	
 	try
 	{
@@ -38,7 +36,7 @@ void load_note_from_so(string file, program_t &prog)
 	{
 		prog.create_func=NULL;
 		prog.dl_handle=NULL;
-		dlclose(handle);
+		dlref_dec(handle);
 		throw err;
 	}
 }
@@ -47,7 +45,7 @@ void maybe_unload_note(program_t &prog)
 {
 	if (prog.dl_handle)
 	{
-		dlclose(prog.dl_handle);
+		dlref_dec(prog.dl_handle);
 		prog.dl_handle=NULL;
 		prog.create_func=NULL;
 	}

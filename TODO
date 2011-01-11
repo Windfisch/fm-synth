@@ -3,16 +3,16 @@
 
 TODO für den synth
    o bei envelopes: releasephase abschalten (bei sustain bleiben)
-
-   o programme on-the-fly (um)laden
-     beim entladen des alten programms: ggf. shared objekt löschen
-     
+	 
+	 o on-the-fly die LFOs ändern (frequenz, wellenform)     
    o RAM aufräumen?
 
    o beide parser: envelopes von oscs mit out=0 standardmäßig deaktivieren
    o envelope, filter, ggf. auch alles aus program.o im hauptprogramm
      lassen? d.h. via init funktionspointer übergeben oder virtuelle
      interfaceklassen benutzen (für envelope/filter z.B.)
+
+  (o)bei program change vielleicht nicht _ALLE_ controller resetten?
 
    o KSL mit powf und floats statt mit double umschreiben
    o statt lfo-nummer direkten zugriff auf curr_lfo angeben?
@@ -36,6 +36,7 @@ TODO für den synth
    o konnte-nicht-verbinden-warnung weniger schlimm machen
  
    o max_pitchbend per controller setzen?
+     per RPN, NRPN
    o nur auf bestimmte channels reagieren
  
   (o)bei filter-envelopes: ksr/ksl? nää.

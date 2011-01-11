@@ -9,12 +9,12 @@ filter.o: filter.cpp filter.h fixed.h defines.h globals.h programs.h \
 globals.o: globals.cpp globals.h programs.h fixed.h note_funcs.h \
   channel.h note_skel.h defines.h util.h
 jack.o: jack.cpp defines.h globals.h programs.h fixed.h note_funcs.h \
-  channel.h note_skel.h util.h jack.h
+  channel.h note_skel.h util.h jack.h communication.h
 load.o: load.cpp util.h programs.h fixed.h note_funcs.h globals.h \
-  channel.h note_skel.h defines.h
-main.o: main.cpp jack.h load.h cli.h parser.h fixed.h programs.h \
-  note_funcs.h channel.h note_skel.h defines.h util.h globals.h \
-  note_loader.h
+  channel.h note_skel.h defines.h parser.h note_loader.h
+main.o: main.cpp jack.h load.h programs.h fixed.h note_funcs.h cli.h \
+  channel.h note_skel.h defines.h util.h globals.h in_synth_cli.h \
+  communication.h note_loader.h
 note.o: note.cpp note.h programs.h fixed.h note_funcs.h envelope.h \
   filter.h note_skel.h globals.h channel.h defines.h util.h
 note_skel.o: note_skel.cpp note_skel.h programs.h fixed.h note_funcs.h \
@@ -22,10 +22,17 @@ note_skel.o: note_skel.cpp note_skel.h programs.h fixed.h note_funcs.h \
 parser.o: parser.cpp parser.h fixed.h programs.h note_funcs.h defines.h \
   globals.h channel.h note_skel.h util.h readwave.h
 programs.o: programs.cpp programs.h fixed.h note_funcs.h globals.h \
-  channel.h note_skel.h defines.h util.h
+  channel.h note_skel.h defines.h util.h shared_object_manager.h
 readwave.o: readwave.cpp readwave.h programs.h fixed.h note_funcs.h \
   util.h
 util.o: util.cpp util.h programs.h fixed.h note_funcs.h globals.h \
   channel.h note_skel.h defines.h
 note_loader.o: note_loader.cpp note_loader.h programs.h fixed.h \
-  note_funcs.h globals.h channel.h note_skel.h defines.h util.h
+  note_funcs.h globals.h channel.h note_skel.h defines.h util.h \
+  shared_object_manager.h
+in_synth_cli.o: in_synth_cli.cpp in_synth_cli.h util.h programs.h fixed.h \
+  note_funcs.h communication.h globals.h channel.h note_skel.h defines.h \
+  load.h
+communication.o: communication.cpp communication.h
+shared_object_manager.o: shared_object_manager.cpp util.h programs.h \
+  fixed.h note_funcs.h shared_object_manager.h

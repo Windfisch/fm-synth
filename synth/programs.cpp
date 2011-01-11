@@ -1,8 +1,10 @@
 #include <string>
 #include <cstring>
+#include <dlfcn.h>
 
 #include "programs.h"
 #include "globals.h"
+#include "shared_object_manager.h"
 
 using namespace std;
 
@@ -78,6 +80,12 @@ void program_t::cleanup()
 			delete [] pfactor.fm[i];
 		delete [] pfactor.fm;
 	}
+
+	if (dl_handle)
+		dlref_dec(dl_handle);
+	
+	dl_handle=NULL;
+	create_func=NULL;
 }
 
 program_t& program_t::operator=(const program_t &that)
@@ -121,6 +129,8 @@ program_t& program_t::operator=(const program_t &that)
 		
 		this->create_func=that.create_func;
 		this->dl_handle=that.dl_handle;
+		if (dl_handle)
+			dlref_inc(dl_handle);
 		
 		return *this;
 	}
