@@ -1,22 +1,6 @@
 #include "envelope.h"
 
-Envelope::Envelope(jack_nframes_t a, jack_nframes_t d, fixed_t s, jack_nframes_t r, bool h, int frames)
-{
-	level=0;
-	t=0;
-	state=ATTACK;
-	max=ONE;
-
-	nth_frame=frames;
-
-	set_ratefactor(1.0);
-
-	set_attack(a);
-	set_decay(d);
-	set_sustain(s);
-	set_release(r);
-	set_hold(h);
-}
+#include <iostream>
 
 Envelope::Envelope(env_settings_t s, int frames)
 {
@@ -28,6 +12,8 @@ Envelope::Envelope(env_settings_t s, int frames)
 	nth_frame=frames;
 
 	set_ratefactor(1.0);
+
+	has_release_phase=(s.release>=0);
 
 	set_attack(s.attack);
 	set_decay(s.decay);
@@ -100,12 +86,14 @@ void Envelope::reattack()
 
 void Envelope::release_key()
 {
-	if ((state!=RELEASE) && (state!=DONE))
-	{
-		t=0;
-		state=RELEASE;
-		sustain=level;
-	}
+	if (has_release_phase)
+		if ((state!=RELEASE) && (state!=DONE))
+		{
+			t=0;
+			state=RELEASE;
+			sustain=level;
+		}
+	//if (!has_release_phase) ignore();
 }
 
 bool Envelope::still_active()
@@ -134,10 +122,14 @@ fixed_t Envelope::get_level() //must be called each frame
 			if (t>=decay)
 			{
 				level=max*sustain >>SCALE;
-				if (hold)
-					state=HOLD;
+				if (has_release_phase)
+					if (hold)
+						state=HOLD;
+					else
+						state=RELEASE;
 				else
-					state=RELEASE;
+					state=DONE;
+
 				t=0;
 			}
 			else //will only happen, if t < decay. so decay will
@@ -147,7 +139,7 @@ fixed_t Envelope::get_level() //must be called each frame
 			break;
 		
 		case HOLD:
-			level=sustain*max >>SCALE;
+			//does nothing. level must be set properly before entering HOLD state
 			break;
 			
 		case RELEASE:
@@ -163,7 +155,7 @@ fixed_t Envelope::get_level() //must be called each frame
 			break;
 			
 		case DONE:
-			level=0;
+			//does nothing. level must be set properly before entering DONE state
 			break;
 	}
 	

@@ -14,7 +14,6 @@
 class Envelope
 {
 	public:
-		Envelope(jack_nframes_t a, jack_nframes_t d, fixed_t s, jack_nframes_t r, bool h, int frames=1);
 		Envelope(env_settings_t s, int frames=1);
 		void release_key();
 		void reattack();
@@ -53,6 +52,7 @@ class Envelope
 		fixed_t sustain_orig;
 		fixed_t level;
 		bool hold;
+		bool has_release_phase;
 		jack_nframes_t t;
 		fixed_t ratefactor;
 		
