@@ -144,7 +144,7 @@ struct env_settings_t
 	jack_nframes_t attack;
 	jack_nframes_t decay;
 	fixed_t sustain;
-	jack_nframes_t release;
+	signed int release;
 	bool hold;
 };
 

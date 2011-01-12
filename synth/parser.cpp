@@ -594,7 +594,24 @@ program_t parse(string fn)
 		}
 	}
 
-		
+
+	bool neverending_tone=false;
+	
+	for (map< parameter_t, list<term_t> >::iterator it=formula.begin(); it!=formula.end(); it++)
+		if ((it->first.par==OUTPUT) && (env[it->first.osc].release<0))
+			neverending_tone=true;
+	
+	for (int i=0;i<n_osc;i++)
+		if ((osc[i].output!=0) && (env[i].release<0))
+			neverending_tone=true;
+
+	if (neverending_tone)
+		throw string("you have an oscillator which\n"
+			  "         may output something but has a never-ending envelope.\n"
+			  "         this would result in a tone that will never end.");
+
+
+
 		
 	program_t result;
 

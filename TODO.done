@@ -61,7 +61,12 @@ TODO für den synth
    x parser-klasse durch parse-funktion ersetzen
    x sostenuto-, halte-, legato-, soft-pedal
    x programme on-the-fly (um)laden
-
+   x bei envelopes: releasephase abschalten (bei sustain bleiben)
+   x parser: programm nicht laden, wenn nonconst- oder nonzero-osc
+             eine envelope ohne release hat (wenn output!=0 und
+             wenn in der controller-formel-liste iwas über diesen
+             osc steht)
+   
 
 TODO fürs CLI
    x filter_update_frames, lfo_update_frames in config, in sec (auch im CLI)

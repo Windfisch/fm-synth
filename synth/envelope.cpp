@@ -1,7 +1,5 @@
 #include "envelope.h"
 
-#include <iostream>
-
 Envelope::Envelope(env_settings_t s, int frames)
 {
 	level=0;
@@ -14,6 +12,9 @@ Envelope::Envelope(env_settings_t s, int frames)
 	set_ratefactor(1.0);
 
 	has_release_phase=(s.release>=0);
+	
+	if (has_release_phase)
+		s.hold=false;
 
 	set_attack(s.attack);
 	set_decay(s.decay);

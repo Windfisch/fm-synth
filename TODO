@@ -2,7 +2,9 @@
     wenn man danach die noten spielen will. nicht reproduzierbar
 
 TODO für den synth
-   o bei envelopes: releasephase abschalten (bei sustain bleiben)
+   o zu testen: funktionieren no-release-envs auch in compilierten noten?
+   o fehlerklassen für fatale fehler (von string abgeleitet)
+   o im cli dürfen warnungen nicht mehr fatal sein
 	 
 	 o on-the-fly die LFOs ändern (frequenz, wellenform)     
    o RAM aufräumen?
