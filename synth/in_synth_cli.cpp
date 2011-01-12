@@ -75,6 +75,7 @@ void do_in_synth_cli()
 		output_warning("WARNING: failed to set signal handler in the in-synth-cli. pressing enter will\n"
 		               "         kill the synth, so be careful. this is not fatal");
 
+	fatal_warnings=false;
 
 	while (true)
 	{

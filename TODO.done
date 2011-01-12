@@ -66,6 +66,7 @@ TODO für den synth
              eine envelope ohne release hat (wenn output!=0 und
              wenn in der controller-formel-liste iwas über diesen
              osc steht)
+   x im cli dürfen warnungen nicht mehr fatal sein
    
 
 TODO fürs CLI

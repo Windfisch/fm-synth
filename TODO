@@ -3,8 +3,6 @@
 
 TODO für den synth
    o zu testen: funktionieren no-release-envs auch in compilierten noten?
-   o fehlerklassen für fatale fehler (von string abgeleitet)
-   o im cli dürfen warnungen nicht mehr fatal sein
 	 
 	 o on-the-fly die LFOs ändern (frequenz, wellenform)     
    o RAM aufräumen?
@@ -41,6 +39,8 @@ TODO für den synth
      per RPN, NRPN
    o nur auf bestimmte channels reagieren
  
+  (o)fehlerklassen für fatale fehler (von string abgeleitet)
+
   (o)bei filter-envelopes: ksr/ksl? nää.
   (o)resonanz-tremolo bei tiefpass? nää.
 
