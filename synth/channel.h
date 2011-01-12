@@ -32,6 +32,7 @@ class Channel
 		void maybe_reload_program(int prog);
 		void set_real_portamento_frames();
 		void set_portamento_time(int val);
+		void set_portamento_time_sec(float val);
 		void set_portamento(int val);
 		void set_volume(int val);
 		void set_balance(int val);

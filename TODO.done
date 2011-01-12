@@ -88,6 +88,7 @@ TODO fürs CLI
    x envelope_update_frames per CLI setzen
    x .so unloaden!
    * lfo-maxima getrennt regeln. [abgelehnt]
+	 x on-the-fly panic, einzelne channels, einzelne instrumente, etc
 
 
 TODO für den compiler

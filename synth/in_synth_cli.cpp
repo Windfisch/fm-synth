@@ -94,8 +94,13 @@ void do_in_synth_cli()
 				cout << "error: expected program-number, found '"<<params<<"'"<<endl;
 			else
 			{
-				num=atoi(params.c_str());
-				lock_and_load_program(num, programfile[num]);
+				if ((num>=0) && (num<128))
+				{
+					num=atoi(params.c_str());
+					lock_and_load_program(num, programfile[num]);
+				}
+				else
+					cout << "error: program-number must be one of 0..127" << endl;
 			}
 		}
 		else if (command=="load")
@@ -111,9 +116,358 @@ void do_in_synth_cli()
 			else
 			{
 				num=atoi(params.c_str());
-				lock_and_load_program(num, file);
+				if ((num>=0) && (num<128))
+				{
+					lock_and_load_program(num, file);
+					programfile[num]=file;
+				}
+				else
+					cout << "error: program-number must be one of 0..127" << endl;
+			}
+		}
+		else if (command=="panic")
+		{
+			if ((params=="") || (params=="all"))
+				for (int i=0;i<N_CHANNELS;i++)
+					channel[i]->panic();
+			else if (isnum(params))
+			{
+				num=atoi(params.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+					channel[num]->panic();
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if (command=="release")
+		{
+			if ((params=="") || (params=="all"))
+				for (int i=0;i<N_CHANNELS;i++)
+					channel[i]->release_all();
+			else if (isnum(params))
+			{
+				num=atoi(params.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+					channel[num]->release_all();
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if (command=="kill_program")
+		{
+			string prgstr, chanstr;
+			prgstr=trim_spaces(str_before(params,' ',params));
+			chanstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(prgstr)) || (prgstr==""))
+				cout << "error: expected program-number, found '"<<prgstr<<"'"<<endl;
+			else if ((!isnum(chanstr)) && chanstr!="")
+				cout << "error: expected channel or nothing, found '"<<chanstr<<"'"<<endl;
+			else
+			{
+				num=atoi(prgstr.c_str());
+				if ((num>=0) && (num<128))
+				{
+					if (chanstr=="")
+						for (int i=0;i<N_CHANNELS;i++)
+							channel[i]->kill_program(num);
+					else
+					{
+						int num2=atoi(chanstr.c_str());
+						if ((num2>=0)&&(num2<N_CHANNELS))
+							channel[num2]->kill_program(num);
+						else
+							cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+					}
+				}
+				else
+					cout << "error: program-number must be one of 0..127" << endl;
+			}
+		}
+		else if ((command=="limit") || (command=="voice_limit") || (command=="set_voice_limit"))
+		{
+			string nstr, chanstr;
+			chanstr=trim_spaces(str_before(params,' ',params));
+			nstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(chanstr)) || (chanstr==""))
+				cout << "error: expected channel, found '"<<chanstr<<"'"<<endl;
+			else if (! ((isnum(nstr)&&nstr!="") || (nstr=="none")))
+				cout << "error: expected new limit or 'none', found '"<<nstr<<"'"<<endl;
+			else
+			{
+				num=atoi(chanstr.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+				{
+					int num2;
+					if (nstr=="none")
+						num2=0;
+					else
+						num2=atoi(nstr.c_str());
+					
+					if (num2>=0)
+						channel[num]->set_n_voices(num2);
+					else
+						cout << "error: limit must be a positive number, zero or 'all'"<<endl;
+				}
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if (command=="reset")
+		{
+			if ((params=="") || (params=="all"))
+				for (int i=0;i<N_CHANNELS;i++)
+					channel[i]->reset_controllers();
+			else if (isnum(params))
+			{
+				num=atoi(params.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+					channel[num]->reset_controllers();
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if ((command=="set_program") || (command=="program") || (command=="prog") || (command=="prg"))
+		{
+			string nstr, chanstr;
+			chanstr=trim_spaces(str_before(params,' ',params));
+			nstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(chanstr)) || (chanstr==""))
+				cout << "error: expected channel, found '"<<chanstr<<"'"<<endl;
+			else if (! (isnum(nstr)&&nstr!="") )
+				cout << "error: expected program, found '"<<nstr<<"'"<<endl;
+			else
+			{
+				num=atoi(chanstr.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+				{
+					int num2;
+					num2=atoi(nstr.c_str());
 				
-				programfile[num]=file;
+					if ((num2>=0) && (num2<128))
+						channel[num]->set_program(num2);
+					else
+						cout << "error: program must be one of 0..127"<<endl;
+				}
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if ((command=="set_controller") || (command=="controller") || (command=="cont") || (command=="cc"))
+		{
+			string nstr, chanstr, valstr;
+			chanstr=trim_spaces(str_before(params,' ',params));
+			params=trim_spaces(str_after(params,' ',""));
+			nstr=trim_spaces(str_before(params,' ',params));
+			valstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(chanstr)) || (chanstr==""))
+				cout << "error: expected channel, found '"<<chanstr<<"'"<<endl;
+			else if (! (isnum(nstr)&&nstr!="") )
+				cout << "error: expected controller, found '"<<nstr<<"'"<<endl;
+			else if (! (isnum(valstr)&&nstr!="") )
+				cout << "error: expected value, found '"<<valstr<<"'"<<endl;
+			else
+			{
+				num=atoi(chanstr.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+				{
+					int num2;
+					num2=atoi(nstr.c_str());
+					int val=atoi(valstr.c_str());
+				
+					if (!((num2>=0) && (num2<128)))
+						cout << "error: controller must be one of 0..127"<<endl;
+					else if (!((val>=0) && (val<128)))
+						cout << "error: value must be one of 0..127"<<endl;
+					else
+						channel[num]->set_controller(num2,val);
+				}
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if ((command=="set_portamento_time") || (command=="portamento_time") || (command=="port_t"))
+		{
+			string nstr, chanstr;
+			chanstr=trim_spaces(str_before(params,' ',params));
+			nstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(chanstr)) || (chanstr==""))
+				cout << "error: expected channel, found '"<<chanstr<<"'"<<endl;
+			else if (! (isfloat(nstr)&&nstr!="") )
+				cout << "error: expected time, found '"<<nstr<<"'"<<endl;
+			else
+			{
+				num=atoi(chanstr.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+				{
+					float num2;
+					num2=atof(nstr.c_str());
+				
+					if (num2>=0)
+						channel[num]->set_portamento_time_sec(num2);
+					else
+						cout << "error: portamento time must be positive"<<endl;
+				}
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if ((command=="portamento") || (command=="port"))
+		{
+			string onstr, chanstr;
+			chanstr=trim_spaces(str_before(params,' ',params));
+			onstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(chanstr)) || (chanstr==""))
+				cout << "error: expected channel, found '"<<chanstr<<"'"<<endl;
+			else if ((onstr!="on")&&(onstr!="off"))
+				cout << "error: expected 'on' or 'off', found '"<<onstr<<"'"<<endl;
+			else
+			{
+				num=atoi(chanstr.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+				{
+					if (onstr=="on")
+						channel[num]->set_portamento(127);
+					else //off
+						channel[num]->set_portamento(0);
+				}
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if ((command=="set_volume") || (command=="volume") || (command=="vol"))
+		{
+			string nstr, chanstr;
+			chanstr=trim_spaces(str_before(params,' ',params));
+			nstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(chanstr)) || (chanstr==""))
+				cout << "error: expected channel, found '"<<chanstr<<"'"<<endl;
+			else if (! (isnum(nstr)&&nstr!="") )
+				cout << "error: expected volume, found '"<<nstr<<"'"<<endl;
+			else
+			{
+				num=atoi(chanstr.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+				{
+					int num2;
+					num2=atoi(nstr.c_str());
+				
+					if ((num2>=0) && (num2<128))
+						channel[num]->set_volume(num2);
+					else
+						cout << "error: volume must be one of 0..127"<<endl;
+				}
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if ((command=="set_balance") || (command=="balance") || (command=="bal"))
+		{
+			string nstr, chanstr;
+			chanstr=trim_spaces(str_before(params,' ',params));
+			nstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(chanstr)) || (chanstr==""))
+				cout << "error: expected channel, found '"<<chanstr<<"'"<<endl;
+			else if (! (isnum(nstr)&&nstr!="") )
+				cout << "error: expected balance, found '"<<nstr<<"'"<<endl;
+			else
+			{
+				num=atoi(chanstr.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+				{
+					int num2;
+					num2=atoi(nstr.c_str());
+				
+					if ((num2>=0) && (num2<128))
+						channel[num]->set_balance(num2);
+					else
+						cout << "error: balance must be one of 0..127"<<endl;
+				}
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if ((command=="hold_pedal") || (command=="hold"))
+		{
+			string onstr, chanstr;
+			chanstr=trim_spaces(str_before(params,' ',params));
+			onstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(chanstr)) || (chanstr==""))
+				cout << "error: expected channel, found '"<<chanstr<<"'"<<endl;
+			else if ((onstr!="on")&&(onstr!="off"))
+				cout << "error: expected 'on' or 'off', found '"<<onstr<<"'"<<endl;
+			else
+			{
+				num=atoi(chanstr.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+					channel[num]->set_hold_pedal(onstr=="on");
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if ((command=="sostenuto_pedal") || (command=="sost_pedal") || (command=="sostenuto") || (command=="sost"))
+		{
+			string onstr, chanstr;
+			chanstr=trim_spaces(str_before(params,' ',params));
+			onstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(chanstr)) || (chanstr==""))
+				cout << "error: expected channel, found '"<<chanstr<<"'"<<endl;
+			else if ((onstr!="on")&&(onstr!="off"))
+				cout << "error: expected 'on' or 'off', found '"<<onstr<<"'"<<endl;
+			else
+			{
+				num=atoi(chanstr.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+					channel[num]->set_sostenuto_pedal(onstr=="on");
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if ((command=="soft_pedal") || (command=="soft"))
+		{
+			string onstr, chanstr;
+			chanstr=trim_spaces(str_before(params,' ',params));
+			onstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(chanstr)) || (chanstr==""))
+				cout << "error: expected channel, found '"<<chanstr<<"'"<<endl;
+			else if ((onstr!="on")&&(onstr!="off"))
+				cout << "error: expected 'on' or 'off', found '"<<onstr<<"'"<<endl;
+			else
+			{
+				num=atoi(chanstr.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+					channel[num]->set_soft_pedal(onstr=="on");
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if ((command=="legato_pedal") || (command=="leg_pedal") || (command=="legato") || (command=="leg"))
+		{
+			string onstr, chanstr;
+			chanstr=trim_spaces(str_before(params,' ',params));
+			onstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(chanstr)) || (chanstr==""))
+				cout << "error: expected channel, found '"<<chanstr<<"'"<<endl;
+			else if ((onstr!="on")&&(onstr!="off"))
+				cout << "error: expected 'on' or 'off', found '"<<onstr<<"'"<<endl;
+			else
+			{
+				num=atoi(chanstr.c_str());
+				if ((num>=0) && (num<N_CHANNELS))
+					channel[num]->set_legato_pedal(onstr=="on");
+				else
+					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
 			}
 		}
 		else if (command!="")

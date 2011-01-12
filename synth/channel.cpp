@@ -345,7 +345,12 @@ void Channel::set_portamento(int val)
 
 void Channel::set_portamento_time(int val)
 {
-	portamento_frames2=samp_rate*val*max_port_time_sec/128;
+	set_portamento_time_sec(val*max_port_time_sec/128.0);
+}
+
+void Channel::set_portamento_time_sec(float val)
+{
+	portamento_frames2=samp_rate*val;
 	if (do_portamento)
 		set_real_portamento_frames();
 }
