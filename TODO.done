@@ -67,7 +67,9 @@ TODO für den synth
              wenn in der controller-formel-liste iwas über diesen
              osc steht)
    x im cli dürfen warnungen nicht mehr fatal sein
-   
+   x on-the-fly die LFOs ändern
+	 x funktioniert Channel::release_all bei gedrücktem HOLD oder SOSTENUTO? ja.
+	 
 
 TODO fürs CLI
    x filter_update_frames, lfo_update_frames in config, in sec (auch im CLI)
