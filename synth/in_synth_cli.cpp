@@ -107,11 +107,9 @@ void do_in_synth_cli()
 				cout << "error: expected program-number, found '"<<params<<"'"<<endl;
 			else
 			{
+				num=atoi(params.c_str());
 				if ((num>=0) && (num<128))
-				{
-					num=atoi(params.c_str());
 					lock_and_load_program(num, programfile[num]);
-				}
 				else
 					cout << "error: program-number must be one of 0..127" << endl;
 			}
