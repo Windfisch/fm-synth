@@ -13,7 +13,7 @@ Envelope::Envelope(env_settings_t s, int frames)
 
 	has_release_phase=(s.release>=0);
 	
-	if (has_release_phase)
+	if (!has_release_phase)
 		s.hold=false;
 
 	set_attack(s.attack);
