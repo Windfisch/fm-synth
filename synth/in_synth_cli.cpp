@@ -9,6 +9,7 @@
 #include "communication.h"
 #include "globals.h"
 #include "load.h"
+#include "lfos.h"
 
 using namespace std;
 
@@ -63,6 +64,18 @@ void lock_and_load_program(int prg_no, string file)
 	
 	do_request(prg_no, false);
 }
+
+void lock_and_change_lfo(int lfo_no, float freq)
+{
+	do_request(-1, true);
+	
+	uninit_lfo(lfo_no);
+	lfo_freq_hz[lfo_no]=freq;
+	init_lfo(lfo_no);
+	
+	do_request(-1, false);
+}
+
 
 void do_in_synth_cli()
 {
@@ -468,6 +481,33 @@ void do_in_synth_cli()
 					channel[num]->set_legato_pedal(onstr=="on");
 				else
 					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
+			}
+		}
+		else if ((command=="change_lfo") || (command=="lfo") || (command=="set_lfo"))
+		{
+			string freqstr, lfostr;
+			lfostr=trim_spaces(str_before(params,' ',params));
+			freqstr=trim_spaces(str_after(params,' ',""));
+			
+			if ((!isnum(lfostr)) || (lfostr==""))
+				cout << "error: expected lfo-number, found '"<<lfostr<<"'"<<endl;
+			else if (! (isfloat(freqstr)&&freqstr!=""))
+				cout << "error: expected frequency, found '"<<freqstr<<"'"<<endl;
+			else
+			{
+				num=atoi(lfostr.c_str());
+				if ((num>=0) && (num<N_LFOS))
+				{
+					float freq;
+					freq=atof(freqstr.c_str());
+					
+					if (freq>0)
+						lock_and_change_lfo(num,freq);
+					else
+						cout << "error: frequency must be a positive number"<<endl;
+				}
+				else
+					cout << "error: lfo-number must be one of 0.."<<N_LFOS-1<<endl;
 			}
 		}
 		else if (command!="")

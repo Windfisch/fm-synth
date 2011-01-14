@@ -2,11 +2,12 @@
     wenn man danach die noten spielen will. nicht reproduzierbar
 
 TODO für den synth
+!!!o on-the-fly die LFOs ändern (frequenz, wellenform)     
+
    o zu testen: funktionieren no-release-envs auch in compilierten noten?
 	 
 	 o funktioniert Channel::release_all bei gedrücktem HOLD oder SOSTENUTO?
 	 
-	 o on-the-fly die LFOs ändern (frequenz, wellenform)     
    o RAM aufräumen?
 
    o beide parser: envelopes von oscs mit out=0 standardmäßig deaktivieren

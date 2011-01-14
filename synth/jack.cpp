@@ -10,6 +10,7 @@
 
 #include "jack.h"
 #include "communication.h"
+#include "lfos.h"
 
 using namespace std;
 
@@ -46,40 +47,6 @@ void process_request()
 
 
 
-void maybe_calc_stuff() //TODO woandershinschieben? lfo.cpp oder so?
-{
-	static int lfocnt=0;
-	static int snhcnt=0;
-	
-	if (lfocnt==0)
-	{
-		lfocnt=lfo_update_frames;
-		
-		for (int i=0;i<N_LFOS;i++)
-		{
-			lfo_phase[i]=(lfo_phase[i]+1)%lfo_res[i];
-			curr_lfo[i]=lfo[i][lfo_phase[i]];
-		}
-	}
-	
-	if (snhcnt==0)
-	{
-		snhcnt=sample_and_hold_frames;
-
-		//temp ranges between -ONE and ONE
-		fixed_t temp = (float(rand())/(RAND_MAX/2)  - 1.0) * ONE;
-		
-		for (int i=0;i<N_LFO_LEVELS;i++)
-			sample_and_hold[i]= temp*i/(N_LFO_LEVELS-1) + ONE;
-		
-		curr_lfo[SNH_LFO]=sample_and_hold;
-		// could be moved to some init function, but looks clearer and
-		// does not eat up the cpu too much ;)
-	}
-	
-	lfocnt--;
-	snhcnt--;
-}
 
 
 
@@ -479,7 +446,7 @@ int process_callback(jack_nframes_t nframes, void *notused)
 			}
 		}
 		
-		maybe_calc_stuff();
+		maybe_calc_lfos();
 
 		for (int j=0;j<N_CHANNELS;j++)
 		{

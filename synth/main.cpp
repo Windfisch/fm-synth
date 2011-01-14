@@ -14,6 +14,7 @@
 #include "in_synth_cli.h"
 #include "communication.h"
 #include "note_loader.h"
+#include "lfos.h"
 
 using namespace std;
 
@@ -77,28 +78,11 @@ int main(int argc, char** argv)
 
 		init_default_program(default_program);
 
-		//two possible divisions by zero are avoided, because
-		//values <= 0 will make the program use the default
-		//(nonzero) values.
-		for (i=0;i<N_LFOS;i++)
-			lfo_res[i]=samp_rate/lfo_freq_hz[i]/lfo_update_frames;
 
-		sample_and_hold_frames=samp_rate/snh_freq_hz;
+		init_snh();
 		
 		for (i=0;i<N_LFOS;i++)
-		{
-			lfo[i]=new fixed_t* [lfo_res[i]];
-			for (j=0;j<lfo_res[i];j++)
-				lfo[i][j]=new fixed_t [N_LFO_LEVELS];
-		}
-		
-		for (i=0;i<N_LFOS;i++)
-			for (j=0;j<lfo_res[i];j++)
-			{
-				float temp=sin(j*2.0*3.141592654/lfo_res[i]);
-				for (int k=0;k<N_LFO_LEVELS;k++)
-					lfo[i][j][k]= (1.0 + temp*(float(LFO_MAX)*k/N_LFO_LEVELS)) * ONE;
-			}
+			init_lfo(i);
 		
 		program_settings=new program_t[128];
 
