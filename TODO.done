@@ -68,7 +68,8 @@ TODO für den synth
              osc steht)
    x im cli dürfen warnungen nicht mehr fatal sein
    x on-the-fly die LFOs ändern
-	 x funktioniert Channel::release_all bei gedrücktem HOLD oder SOSTENUTO? ja.
+	 x funktioniert Channel::release_all bei gedrücktem HOLD oder SOSTENUTO? [ja]
+   x freq-envelopes:
 	 
 
 TODO fürs CLI

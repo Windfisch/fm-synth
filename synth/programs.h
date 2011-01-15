@@ -48,7 +48,12 @@ enum parameter_enum
 	FILTER_TREMOLO,
 	FILTER_TREM_LFO,
 	SYNC_FACTOR,
-
+	FREQ_ATTACK,
+	FREQ_DECAY,
+	FREQ_SUSTAIN,
+	FREQ_RELEASE,
+	FREQ_HOLD,
+	FREQ_ENV_AMOUNT,
 
 	PARAMETER_N_ENTRIES,
 	UNKNOWN=-1
@@ -75,6 +80,7 @@ struct pfactor_formula_t
 {
 	param_factor_t **fm;
 	param_factor_t *out;
+	param_factor_t *freq_env_amount;
 	param_factor_t filter_env;
 	param_factor_t filter_res;
 	param_factor_t filter_offset;
@@ -84,6 +90,7 @@ struct pfactor_value_t
 {
 	fixed_t **fm;
 	fixed_t *out;
+	fixed_t *freq_env_amount;
 	fixed_t filter_env;
 	fixed_t filter_res;
 	fixed_t filter_offset;
@@ -113,12 +120,24 @@ struct custom_wave_t
 };
 
 
+struct env_settings_t
+{
+	jack_nframes_t attack;
+	jack_nframes_t decay;
+	fixed_t sustain;
+	signed int release;
+	bool hold;
+};
+
 struct oscillator_t
 {
 	fixed_t *fm_strength; //this osc gets modulated by osc #i by fm_strength[i].
 	fixed_t output;       //NOT: osc #i gets modulated by this osc!
 	int waveform;
 	fixed_t factor;
+	float freq_env_amount;
+	env_settings_t freq_env;
+	
 	fixed_t phase;
 	
 	fixed_t tremolo_depth;
@@ -137,15 +156,6 @@ struct oscillator_t
 	
 	oscillator_t();
 	oscillator_t& operator=(const oscillator_t &that);
-};
-
-struct env_settings_t
-{
-	jack_nframes_t attack;
-	jack_nframes_t decay;
-	fixed_t sustain;
-	signed int release;
-	bool hold;
 };
 
 struct filter_params_t

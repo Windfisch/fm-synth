@@ -171,6 +171,18 @@ parameter_enum param_to_enum(string param)
 		return FILTER_TREM_LFO;
 	else if (param=="sync_factor")
 		return SYNC_FACTOR;
+	else if (param=="freq.env_amount")
+		return FREQ_ENV_AMOUNT;
+	else if (param=="freq.attack")
+		return FREQ_ATTACK;
+	else if (param=="freq.decay")
+		return FREQ_DECAY;
+	else if (param=="freq.sustain")
+		return FREQ_SUSTAIN;
+	else if (param=="freq.release")
+		return FREQ_RELEASE;
+	else if (param=="freq.hold")
+		return FREQ_HOLD;
 	else
 		return UNKNOWN;
 }

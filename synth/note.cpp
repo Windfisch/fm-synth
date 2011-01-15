@@ -23,10 +23,12 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	
 	
 	pfactor.out=new fixed_t [n_oscillators];
+	pfactor.freq_env_amount=new fixed_t [n_oscillators];
 	pfactor.fm=new fixed_t* [n_oscillators];
 	for (int i=0;i<n_oscillators;i++)
 		pfactor.fm[i]=new fixed_t [n_oscillators];
 	
+	freqfactor_factor=new double[n_oscillators];
 	envval=new fixed_t[n_oscillators];
 	oscval=new fixed_t[n_oscillators];
 	old_oscval=new fixed_t[n_oscillators];
@@ -35,9 +37,13 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 		envval[i]=oscval[i]=old_oscval[i]=0;
 	
 	envelope=new Envelope*[n_oscillators];
+	factor_env=new Envelope*[n_oscillators];
 	
 	for (int i=0;i<n_oscillators;i++)
+	{
 		envelope[i]=new Envelope(prg.env_settings[i], envelope_update_frames);
+		factor_env[i]=new Envelope(prg.osc_settings[i].freq_env, envelope_update_frames);
+	}
 	
 	oscillator=new oscillator_t[n_oscillators];
 	orig.oscillator=new oscillator_t[n_oscillators];
@@ -106,18 +112,22 @@ Note::~Note()
 	{
 		delete [] oscillator[i].fm_strength;
 		delete envelope[i];
+		delete factor_env[i];
 		
 		delete [] pfactor.fm[i];
 	}
 	
 	delete [] oscillator;
 	delete [] envelope;
+	delete [] factor_env;
 	
+	delete [] freqfactor_factor;
 	delete [] envval;
 	delete [] oscval;
 	delete [] old_oscval;
 
 	delete [] pfactor.out;
+	delete [] pfactor.freq_env_amount;
 	delete [] pfactor.fm;
 
 }
@@ -131,6 +141,7 @@ void Note::recalc_factors()
 	for (int i=0;i<n_oscillators;i++)
 	{
 		pfactor.out[i]=calc_pfactor(curr_prg->pfactor.out[i], vel) * volume_factor;
+		pfactor.freq_env_amount[i]=calc_pfactor(curr_prg->pfactor.freq_env_amount[i], vel);
 
 		for (int j=0;j<n_oscillators;j++)
 			pfactor.fm[i][j]=calc_pfactor(curr_prg->pfactor.fm[i][j], vel);
@@ -143,6 +154,7 @@ void Note::apply_pfactor()
 	for (int i=0;i<n_oscillators;i++)
 	{
 		oscillator[i].output=orig.oscillator[i].output*pfactor.out[i] >>SCALE;
+		oscillator[i].freq_env_amount=orig.oscillator[i].freq_env_amount*pfactor.freq_env_amount[i] /ONE; //because it's a float
 		
 		for (int j=0;j<n_oscillators;j++)
 			oscillator[i].fm_strength[j]=orig.oscillator[i].fm_strength[j]*pfactor.fm[i][j] >>SCALE;
@@ -166,7 +178,7 @@ void Note::set_param(const parameter_t &p, fixed_t v) //ACHTUNG:
 		case KSR: oscillator[p.osc].ksr=float(v)/ONE; break;
 		case KSL: oscillator[p.osc].ksl=float(v)/ONE; break;
 
-		case FACTOR: oscillator[p.osc].factor=v; break;
+		case FACTOR: orig.oscillator[p.osc].factor=v; oscillator[p.osc].factor=v*freqfactor_factor[p.osc]; break;
 		case MODULATION: orig.oscillator[p.osc].fm_strength[p.index]=v; apply_pfactor(); break;
 		case OUTPUT: orig.oscillator[p.osc].output=v; apply_pfactor(); break;
 		case TREMOLO: oscillator[p.osc].tremolo_depth=v; break;
@@ -220,6 +232,14 @@ void Note::set_param(const parameter_t &p, fixed_t v) //ACHTUNG:
 		case FILTER_TREM_LFO: filter_params.trem_lfo=v; break;
 		
 		case SYNC_FACTOR: sync_factor=v; break;
+
+		case FREQ_ATTACK: factor_env[p.osc]->set_attack(v*samp_rate >>SCALE); break;
+		case FREQ_DECAY: factor_env[p.osc]->set_decay(v*samp_rate >>SCALE); break;
+		case FREQ_SUSTAIN: factor_env[p.osc]->set_sustain(v); break;
+		case FREQ_RELEASE: factor_env[p.osc]->set_release(v*samp_rate >>SCALE); break;
+		case FREQ_HOLD: factor_env[p.osc]->set_hold((v!=0)); break;
+		case FREQ_ENV_AMOUNT: orig.oscillator[p.osc].freq_env_amount=double(v)/ONE; apply_pfactor(); break;
+
 		default: throw string("trying to set an unknown parameter");
 
 	}
@@ -255,7 +275,10 @@ void Note::release_quickly(jack_nframes_t maxt)
 void Note::release()
 {
 	for (int i=0;i<n_oscillators;i++)
+	{
 		envelope[i]->release_key();
+		factor_env[i]->release_key();
+	}
 	
 	if (filter_params.enabled)
 		filter_envelope->release_key();
@@ -264,7 +287,10 @@ void Note::release()
 void Note::reattack()
 {
 	for (int i=0;i<n_oscillators;i++)
+	{
 		envelope[i]->reattack();	
+		factor_env[i]->reattack();
+	}
 
 	if (filter_params.enabled)
 		filter_envelope->reattack();
@@ -343,7 +369,12 @@ fixed_t Note::get_sample()
 	{
 		env_frame_counter=0;
 		for (i=0;i<n_oscillators;i++)
+		{
 			envval[i]=envelope[i]->get_level();
+			
+			freqfactor_factor[i]=pow(2.0, oscillator[i].freq_env_amount*(factor_env[i]->get_level() - factor_env[i]->get_sustain())/ONE);
+			oscillator[i].factor=orig.oscillator[i].factor*freqfactor_factor[i];
+		}
 	}
 	
 	

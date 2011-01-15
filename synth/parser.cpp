@@ -198,6 +198,13 @@ void init_oscs(int n_osc, oscillator_t *osc)
 		osc[i].vibrato_depth=0;
 		osc[i].vibrato_lfo=0;
 		osc[i].custom_wave=NULL;
+		
+		osc[i].freq_env_amount=0;
+		osc[i].freq_env.attack=0;
+		osc[i].freq_env.decay=0;
+		osc[i].freq_env.sustain=ONE;
+		osc[i].freq_env.release=-1;
+		osc[i].freq_env.hold=true;
 	}
 }
 
@@ -231,6 +238,7 @@ void init_filter(filter_params_t &filter)
 void init_pfactors(int n_osc, pfactor_formula_t &pfactor)
 {
 	pfactor.out=new param_factor_t [n_osc];
+	pfactor.freq_env_amount=new param_factor_t [n_osc];
 	pfactor.fm=new param_factor_t* [n_osc];
 	
 	pfactor.filter_env.offset=ONE;
@@ -246,6 +254,9 @@ void init_pfactors(int n_osc, pfactor_formula_t &pfactor)
 	{
 		pfactor.out[i].offset=0;
 		pfactor.out[i].vel_amount=ONE;
+		
+		pfactor.freq_env_amount[i].offset=0;
+		pfactor.freq_env_amount[i].vel_amount=ONE;
 		
 		pfactor.fm[i]=new param_factor_t [n_osc];
 		for (int j=0;j<n_osc;j++)
@@ -380,7 +391,7 @@ program_t parse(string fn)
 							osc[ind].output=val*ONE;
 							break;
 						case WAVEFORM:
-							if (isfloat(strval))
+							if (isnum(strval))
 							{
 								osc[ind].waveform=int(val);
 							}
@@ -497,6 +508,26 @@ program_t parse(string fn)
 						case SYNC_FACTOR:
 							sync_factor=val*ONE;
 							break;
+
+						case FREQ_ATTACK:
+							osc[ind].freq_env.attack=val*samp_rate;
+							break;
+						case FREQ_DECAY:
+							osc[ind].freq_env.decay=val*samp_rate;
+							break;
+						case FREQ_SUSTAIN:
+							osc[ind].freq_env.sustain=val*ONE;
+							break;
+						case FREQ_RELEASE:
+							osc[ind].freq_env.release=val*samp_rate;
+							break;
+						case FREQ_HOLD:
+							osc[ind].freq_env.hold=(val!=0);
+							break;
+						case FREQ_ENV_AMOUNT:
+							osc[ind].freq_env_amount=val;
+							break;
+
 						default:
 							throw string("unknown variable ('"+array+"')");
 					}
@@ -583,6 +614,10 @@ program_t parse(string fn)
 							
 						case FILTER_OFFSET:
 							pfactor.filter_offset=parse_pfactor(strval);
+							break;
+						
+						case FREQ_ENV_AMOUNT:
+							pfactor.freq_env_amount[ind]=parse_pfactor(strval);
 							break;
 							
 						default:

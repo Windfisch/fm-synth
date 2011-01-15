@@ -35,6 +35,9 @@ class Note : public NoteSkel
 		
 		int env_frame_counter;
 		
+		double *freqfactor_factor;
+		Envelope **factor_env;
+		
 		fixed_t *envval;
 		fixed_t *oscval;
 		fixed_t *old_oscval;

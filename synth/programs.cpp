@@ -51,6 +51,7 @@ program_t::program_t()
 	
 	pfactor.fm=NULL;
 	pfactor.out=NULL;
+	pfactor.freq_env_amount=NULL;
 	
 	create_func=NULL;
 	dl_handle=NULL;
@@ -74,6 +75,8 @@ void program_t::cleanup()
 		
 	if (pfactor.out)
 		delete [] pfactor.out;
+	if (pfactor.freq_env_amount)
+		delete [] pfactor.freq_env_amount;
 	if (pfactor.fm)
 	{
 		for (unsigned int i=0;i<n_osc;i++)
@@ -118,6 +121,9 @@ program_t& program_t::operator=(const program_t &that)
 		
 		this->pfactor.out=new param_factor_t [n_osc];
 		memcpy(this->pfactor.out, that.pfactor.out, sizeof(param_factor_t)*n_osc);
+		
+		this->pfactor.freq_env_amount=new param_factor_t [n_osc];
+		memcpy(this->pfactor.freq_env_amount, that.pfactor.freq_env_amount, sizeof(param_factor_t)*n_osc);
 		
 		this->pfactor.fm=new param_factor_t* [n_osc];
 		for (i=0;i<n_osc;i++)
@@ -174,6 +180,13 @@ void program_t::set_param(const parameter_t &p, fixed_t v) //ACHTUNG:
 		case FILTER_TREM_LFO: filter_settings.trem_lfo=v; break;
 		
 		case SYNC_FACTOR: sync_factor=v; break;
+
+		case FREQ_ATTACK: osc_settings[p.osc].freq_env.attack=v*samp_rate >>SCALE; break;
+		case FREQ_DECAY: osc_settings[p.osc].freq_env.decay=v*samp_rate >>SCALE; break;
+		case FREQ_SUSTAIN: osc_settings[p.osc].freq_env.sustain=v; break;
+		case FREQ_RELEASE: osc_settings[p.osc].freq_env.release=v*samp_rate >>SCALE; break;
+		case FREQ_HOLD: osc_settings[p.osc].freq_env.hold=(v!=0); break;
+		case FREQ_ENV_AMOUNT: osc_settings[p.osc].freq_env_amount=double(v)/ONE; break;
 		
 		default: throw string("trying to set an unknown parameter");
 	}
@@ -220,6 +233,7 @@ void init_default_program(program_t &p)
 	
 	
 	p.pfactor.out=new param_factor_t [1];
+	p.pfactor.freq_env_amount=new param_factor_t [1];
 	p.pfactor.fm=new param_factor_t* [1];
 	
 	p.pfactor.filter_env.offset=ONE;
@@ -232,6 +246,9 @@ void init_default_program(program_t &p)
 	
 	p.pfactor.out[0].offset=0;
 	p.pfactor.out[0].vel_amount=ONE;
+
+	p.pfactor.freq_env_amount[0].offset=ONE;
+	p.pfactor.freq_env_amount[0].vel_amount=0;
 		
 	p.pfactor.fm[0]=new param_factor_t [1];
 	p.pfactor.fm[0][0].offset=ONE;

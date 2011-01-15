@@ -35,7 +35,7 @@ class Envelope
 		bool get_hold() { return hold; }
 		jack_nframes_t get_attack() { return attack_orig; }
 		jack_nframes_t get_decay() { return decay_orig; }
-		fixed_t get_sustain() { return sustain; }
+		fixed_t get_sustain() { return sustain_orig; }
 		jack_nframes_t get_release() { return release_orig; }
 		
 		

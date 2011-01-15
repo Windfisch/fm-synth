@@ -2,7 +2,13 @@
     wenn man danach die noten spielen will. nicht reproduzierbar
 
 TODO für den synth
-!! o freq-envelopes
+!! o im in-synth-cli auch die snh-freq setzen!!!   
+   
+   o freq-envelopes und pfactor dafür auch für compiled_notes implementieren!
+   o envelopes nur alle N frames updaten auch bei compiled notes implementieren!
+   
+   o optimierung: foo++ durch ++foo ersetzen
+   o optimierung: bei allen iterationen: foo.end() cachen!
 
    o zu testen: funktionieren no-release-envs auch in compilierten noten?
 	 
