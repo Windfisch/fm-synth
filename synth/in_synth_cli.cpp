@@ -508,6 +508,22 @@ void do_in_synth_cli()
 					cout << "error: lfo-number must be one of 0.."<<N_LFOS-1<<endl;
 			}
 		}
+		else if ((command=="snh") || (command=="snh_freq") || (command=="sample_and_hold_freq") || (command=="set_sample_and_hold_freq"))
+		{
+			if (isfloat(params))
+			{
+				float freq=atof(params.c_str());
+				if (freq>=0)
+				{
+					snh_freq_hz=freq;
+					init_snh(); //no uninit neccessary, as this only calculates an integer
+				}
+				else
+					cout << "error: sample-and-hold-frequency must be greater than zero"<<endl;
+			}
+			else
+				cout << "error: expected frequency, found '"<<params<<"'"<<endl;
+		}
 		else if (command!="")
 		{
 			cout << "error: unrecognized command '"<<command<<"'"<<endl;
