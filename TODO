@@ -2,24 +2,11 @@
     wenn man danach die noten spielen will. nicht reproduzierbar
 
 TODO für den synth
-!! o im in-synth-cli auch die snh-freq setzen!!!   
-   
-   o freq-envelopes und pfactor dafür auch für compiled_notes implementieren!
-   o envelopes nur alle N frames updaten auch bei compiled notes implementieren!
-   
-   o optimierung: foo++ durch ++foo ersetzen
-   o optimierung: bei allen iterationen: foo.end() cachen!
-
-   o zu testen: funktionieren no-release-envs auch in compilierten noten?
+   o frameskip vlt nicht ++en?
+   o seltener cleanup rufen, stattdessen als inaktiv markieren
+     -> effekt: noten können wiederverwendet werden, seltenere ctor-aufrufe
 	 
    o RAM aufräumen?
-
-   o beide parser: envelopes von oscs mit out=0 standardmäßig deaktivieren
-   o envelope, filter, ggf. auch alles aus program.o im hauptprogramm
-     lassen? d.h. via init funktionspointer übergeben oder virtuelle
-     interfaceklassen benutzen (für envelope/filter z.B.)
-
-  (o)bei program change vielleicht nicht _ALLE_ controller resetten?
 
    o KSL mit powf und floats statt mit double umschreiben
    o statt lfo-nummer direkten zugriff auf curr_lfo angeben?
@@ -29,7 +16,6 @@ TODO für den synth
 
    o jedes programm eigene LFOs?
    o andere wellenformen bei LFOs?
-   o mehr wellen für wave[]
  
    o parser: sehr redundante funktionen zusammenführen
    o parser: direkt in result schreiben?  
@@ -46,10 +32,23 @@ TODO für den synth
      per RPN, NRPN
    o nur auf bestimmte channels reagieren
  
+  (o)bei program change vielleicht nicht _ALLE_ controller resetten?
+
   (o)fehlerklassen für fatale fehler (von string abgeleitet)
 
   (o)bei filter-envelopes: ksr/ksl? nää.
   (o)resonanz-tremolo bei tiefpass? nää.
+
+
+TODO für den compiler
+   o freq-envelopes und pfactor dafür auch für compiled_notes implementieren!
+   o envelopes nur alle N frames updaten auch bei compiled notes implementieren!
+   o zu testen: funktionieren no-release-envs auch in compilierten noten?
+   o envelopes von oscs mit out=0 standardmäßig deaktivieren
+   o envelope, filter, ggf. auch alles aus program.o im hauptprogramm
+     lassen? d.h. via init funktionspointer übergeben oder virtuelle
+     interfaceklassen benutzen (für envelope/filter z.B.)
+
 
 
 TODO fürs CLI

@@ -20,7 +20,7 @@ string IntToStrHex(int i)
 
 bool isnum(string s)
 {
-	for (size_t i=0;i<s.length();i++)
+	for (size_t i=0;i<s.length();++i)
 		if (!isdigit(s[i]))
 			return false;
 	
@@ -37,7 +37,7 @@ string remove_all_spaces(string s)
 {
 	string result;
 	
-	for (size_t i=0; i<s.length(); i++)
+	for (size_t i=0; i<s.length(); ++i)
 		if ((s[i]!=' ') && (s[i]!='\t'))
 			result+=s[i];
 	
@@ -49,14 +49,14 @@ string trim_spaces(string s)
 	string result;
 	int i;
 	
-	for (i=0;i<s.length();i++)
+	for (i=0;i<s.length();++i)
 		if ((s[i]!=' ') && (s[i]!='\t'))
 			break;
 	
 	if (i!=s.length())
 	{
 		result=s.substr(i);
-		for (i=result.length()-1;i>=0;i--)
+		for (i=result.length()-1;i>=0;--i)
 			if ((result[i]!=' ') && (result[i]!='\t'))
 				break;
 		

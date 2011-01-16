@@ -69,7 +69,11 @@ TODO für den synth
    x im cli dürfen warnungen nicht mehr fatal sein
    x on-the-fly die LFOs ändern
 	 x funktioniert Channel::release_all bei gedrücktem HOLD oder SOSTENUTO? [ja]
-   x freq-envelopes:
+   x freq-envelopes
+   x im in-synth-cli auch die snh-freq setzen!!!   
+   x optimierung: foo++ durch ++foo ersetzen
+   x optimierung: den relevanten iterationen: foo.end() cachen!
+   x mehr wellen für wave[]
 	 
 
 TODO fürs CLI

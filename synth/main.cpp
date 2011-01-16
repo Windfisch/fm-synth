@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 {
 	init_communication();
 	
-  for (int i=0;i<N_LFOS;i++)
+  for (int i=0;i<N_LFOS;++i)
   	lfo_freq_hz[i]=0;
   
   try
@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 		add_dir("/etc/flosynth", false);
 
 		if (cleanup_interval_sec<=0) cleanup_interval_sec=CLEANUP_INTERVAL_SEC;
-		for (int i=0;i<N_LFOS;i++)
+		for (int i=0;i<N_LFOS;++i)
 			if (lfo_freq_hz[i]<=0) lfo_freq_hz[i]=LFO_FREQ_HZ[i];
 
 		if (snh_freq_hz<=0) snh_freq_hz=SNH_FREQ_HZ;
@@ -52,8 +52,8 @@ int main(int argc, char** argv)
 		
 		dump_options();
 		
-		frameskip++; //because a value of 0 means using each frame,
-		             //a value of 1 means using each 2nd frame and so on
+		frameskip+=1; //because a value of 0 means using each frame,
+		              //a value of 1 means using each 2nd frame and so on
 		
 		init_jack();
 
@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 		if (lfo_update_frames<1) lfo_update_frames=1;
 		if (envelope_update_frames<1) envelope_update_frames=1;
 
-		int i,j;
+		int i;
 
 
 		init_default_program(default_program);
@@ -81,31 +81,37 @@ int main(int argc, char** argv)
 
 		init_snh();
 		
-		for (i=0;i<N_LFOS;i++)
+		for (i=0;i<N_LFOS;++i)
 			init_lfo(i);
 		
 		program_settings=new program_t[128];
 
-		for (i=0;i<128;i++)
+		for (i=0;i<128;++i)
 		{
 			program_lock[i]=false;
 			
 			load_program(programfile[i],program_settings[i]);
 		}
 		
-		for (i=0;i<N_WAVEFORMS;i++)
+		for (i=0;i<N_WAVEFORMS;++i)
 			wave[i]=new fixed_t[WAVE_RES];
 			
-		for (i=0;i<WAVE_RES;i++)
+		for (i=0;i<WAVE_RES;++i)
 		{
-			wave[0][i]=sin(i*2.0*3.141592654/WAVE_RES)*ONE;
-			wave[1][i]=abs(wave[0][i]);
-			wave[2][i]=(wave[0][i]>=0) ? wave[0][i] : 0;
-			wave[3][i]=(i<=WAVE_RES/4) ? wave[0][i] : 0;
+			float temp1, temp2;
+			temp1=sin(i*2.0*3.141592654/WAVE_RES);
+			temp2=sin(i*3.141592654/WAVE_RES);
+			wave[0][i]=temp1*ONE;
+			wave[1][i]=temp2*ONE;
+			wave[2][i]=(i<=WAVE_RES/2) ? wave[0][i] : 0;
+			wave[3][i]= (i<=WAVE_RES/2) ? wave[1][i] : 0;
 			wave[4][i]=(i<WAVE_RES/2) ? ONE : -ONE;
+			wave[5][i]=(i<=WAVE_RES/2) ? (ONE*2*i/WAVE_RES) : (ONE*2*i/WAVE_RES - 2*ONE);
+			wave[6][i]=(i<=WAVE_RES/2) ? (ONE*2*i/WAVE_RES) : (ONE*2*(WAVE_RES-i)/WAVE_RES);
+			wave[7][i]=float(rand() - RAND_MAX/2) / (RAND_MAX/2) *ONE;
 		}
 		
-		for (int i=0;i<N_CHANNELS;i++)
+		for (int i=0;i<N_CHANNELS;++i)
 			channel[i]=new Channel;
 		
 		srand (time(NULL));
@@ -133,13 +139,13 @@ void cleanup()
 	
 	uninit_communication();
 	
-	for (int i=0;i<N_CHANNELS;i++)
+	for (int i=0;i<N_CHANNELS;++i)
 	{
 		delete channel[i];
 		channel[i]=NULL;
 	}
 	
-	for (int i=0;i<128;i++)
+	for (int i=0;i<128;++i)
 		maybe_unload_note(program_settings[i]);
 	
 	delete [] program_settings;
@@ -147,7 +153,7 @@ void cleanup()
 
 void dump_options()
 {
-	for (int i=0;i<128;i++)
+	for (int i=0;i<128;++i)
 		if (programfile[i]!="")
 			cout << "program #"<<i<<":\t'"<<programfile[i]<<"'"<<endl;
 	
@@ -155,7 +161,7 @@ void dump_options()
 	
 	cout << "frameskip:\t\t"<<frameskip<<endl;
 	cout << "cleanup-interval:\t"<<cleanup_interval_sec<<endl;
-	for (int i=0;i<N_LFOS;i++)
+	for (int i=0;i<N_LFOS;++i)
 		cout << "lfo"<<i<<" freq:\t\t"<<lfo_freq_hz[i]<<endl;
 
 	cout << "sample and hold freq:\t"<<snh_freq_hz<<endl;

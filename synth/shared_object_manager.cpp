@@ -31,7 +31,7 @@ void* my_dlopen(string file)
 		output_verbose("the requested shared object '"+file+"' has been loaded with handle #"+IntToStr(int(handle)));
 	}
 	
-	dl_ref_count[handle]++;
+	++dl_ref_count[handle];
 	
 	return handle;
 }
@@ -44,7 +44,7 @@ void dlref_inc(void* handle)
 	if (dl_ref_count[handle]==0)
 		throw string("dlref_inc: tried to increment the ref-count for a nonexistent handle");
 		
-	dl_ref_count[handle]++;
+	++dl_ref_count[handle];
 }
 
 void dlref_dec(void* handle)
@@ -55,7 +55,7 @@ void dlref_dec(void* handle)
 	if (dl_ref_count[handle]==0)
 		throw string("dlref_inc: tried to decrement the ref-count for a nonexistent handle");
 	
-	dl_ref_count[handle]--;
+	--dl_ref_count[handle];
 	
 	if (dl_ref_count[handle]==0)
 	{

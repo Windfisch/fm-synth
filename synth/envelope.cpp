@@ -160,6 +160,6 @@ fixed_t Envelope::get_level() //must be called each frame
 			break;
 	}
 	
-	t++;
+	++t;
 	return level;
 }

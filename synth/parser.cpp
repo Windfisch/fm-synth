@@ -22,7 +22,7 @@ string extract_array_name(string s)
 int extract_array_index(string s, int dim)
 {
 	size_t p=-1,p2;
-	for (int i=0;i<dim;i++)
+	for (int i=0;i<dim;++i)
 	{
 		p=s.find('[',p+1);
 		if (p==string::npos) return -1;
@@ -80,12 +80,12 @@ list<term_t> extract_formula(string s)
 	term_t tmp;
 	list<string> terms=extract_terms(s);
 	
-	for (list<string>::iterator term=terms.begin(); term!=terms.end(); term++)
+	for (list<string>::iterator term=terms.begin(); term!=terms.end(); ++term)
 	{
 		list<string> factors=extract_factors(term->substr(1));
 		double fac=	((*term)[0]=='+') ? 1.0 : -1.0;
 		string cont="";
-		for (list<string>::iterator factor=factors.begin(); factor!=factors.end(); factor++)
+		for (list<string>::iterator factor=factors.begin(); factor!=factors.end(); ++factor)
 		{
 			if (factor->find_first_not_of("0123456789.*/+-")==string::npos)
 			{
@@ -135,12 +135,12 @@ param_factor_t parse_pfactor(string s) //TODO fast dasselbe wie oben. mergen?
 	
 	list<string> terms=extract_terms(s);
 	
-	for (list<string>::iterator term=terms.begin(); term!=terms.end(); term++)
+	for (list<string>::iterator term=terms.begin(); term!=terms.end(); ++term)
 	{
 		list<string> factors=extract_factors(term->substr(1));
 		double fac=	((*term)[0]=='+') ? 1.0 : -1.0;
 		string cont="";
-		for (list<string>::iterator factor=factors.begin(); factor!=factors.end(); factor++)
+		for (list<string>::iterator factor=factors.begin(); factor!=factors.end(); ++factor)
 		{
 			if (factor->find_first_not_of("0123456789.*/+-")==string::npos)
 			{
@@ -182,12 +182,12 @@ param_factor_t parse_pfactor(string s) //TODO fast dasselbe wie oben. mergen?
 
 void init_oscs(int n_osc, oscillator_t *osc)
 {
-	for (int i=0;i<n_osc;i++)
+	for (int i=0;i<n_osc;++i)
 	{
 		osc[i].n_osc=n_osc;
 		
 		osc[i].fm_strength=new fixed_t[n_osc];
-		for (int j=0;j<n_osc;j++)
+		for (int j=0;j<n_osc;++j)
 			osc[i].fm_strength[j]=0;
 		
 		osc[i].output=0;
@@ -210,7 +210,7 @@ void init_oscs(int n_osc, oscillator_t *osc)
 
 void init_envs(int n_osc, env_settings_t *env)
 {
-	for (int i=0;i<n_osc;i++)
+	for (int i=0;i<n_osc;++i)
 	{
 		env[i].attack=0;
 		env[i].decay=0;
@@ -250,7 +250,7 @@ void init_pfactors(int n_osc, pfactor_formula_t &pfactor)
 	pfactor.filter_offset.offset=ONE;
 	pfactor.filter_offset.vel_amount=0;
 	
-	for (int i=0;i<n_osc;i++)
+	for (int i=0;i<n_osc;++i)
 	{
 		pfactor.out[i].offset=0;
 		pfactor.out[i].vel_amount=ONE;
@@ -259,7 +259,7 @@ void init_pfactors(int n_osc, pfactor_formula_t &pfactor)
 		pfactor.freq_env_amount[i].vel_amount=ONE;
 		
 		pfactor.fm[i]=new param_factor_t [n_osc];
-		for (int j=0;j<n_osc;j++)
+		for (int j=0;j<n_osc;++j)
 		{
 			pfactor.fm[i][j].offset=ONE;
 			pfactor.fm[i][j].vel_amount=0;			
@@ -288,7 +288,7 @@ program_t parse(string fn)
 	map< parameter_t, list<term_t> > formula;
 	int controller_default[128];
 
-	for (int i=0;i<128;i++)
+	for (int i=0;i<128;++i)
 		controller_default[i]=0;
 
 	filter_params_t filter;
@@ -557,7 +557,7 @@ program_t parse(string fn)
 					par.index=ind2;
 
 					terms=extract_formula(strval);
-					for (list<term_t>::iterator it=terms.begin(); it!=terms.end(); it++)
+					for (list<term_t>::iterator it=terms.begin(); it!=terms.end(); ++it)
 						if (it->c!=NO_CONT)
 							affect[it->c].insert(par);
 					
@@ -632,11 +632,11 @@ program_t parse(string fn)
 
 	bool neverending_tone=false;
 	
-	for (map< parameter_t, list<term_t> >::iterator it=formula.begin(); it!=formula.end(); it++)
+	for (map< parameter_t, list<term_t> >::iterator it=formula.begin(); it!=formula.end(); ++it)
 		if ((it->first.par==OUTPUT) && (env[it->first.osc].release<0))
 			neverending_tone=true;
 	
-	for (int i=0;i<n_osc;i++)
+	for (int i=0;i<n_osc;++i)
 		if ((osc[i].output!=0) && (env[i].release<0))
 			neverending_tone=true;
 
@@ -662,7 +662,7 @@ program_t parse(string fn)
 	result.env_settings=new env_settings_t[n_osc];
 	copy(&env[0],&env[n_osc],result.env_settings);
 
-	for (int i=0;i<128;i++)
+	for (int i=0;i<128;++i)
 		result.controller[i]=controller_default[i];
 	
 	result.filter_settings=filter;
@@ -675,7 +675,7 @@ program_t parse(string fn)
 
 	//clean up a bit
 	
-	for (int i=0;i<n_osc;i++)
+	for (int i=0;i<n_osc;++i)
 		delete [] osc[i].fm_strength;
 		
 	delete [] osc;

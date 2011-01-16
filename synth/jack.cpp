@@ -30,14 +30,14 @@ void manage_program_lock(int prog, bool lock) //TODO woandershinschieben?
 	program_lock[prog]=lock;
 	
 	if (lock)
-		for (int i=0;i<N_CHANNELS;i++)
+		for (int i=0;i<N_CHANNELS;++i)
 			channel[i]->kill_program(prog);
 }
 
 void process_request()
 {
 	if (suspend_request.prog==-1)
-		for (int i=0;i<128;i++)
+		for (int i=0;i<128;++i)
 			manage_program_lock(i,suspend_request.suspend);
 	else
 		manage_program_lock(suspend_request.prog,suspend_request.suspend);
@@ -69,7 +69,7 @@ void init_jack()
 	if (midi_in == NULL)
 		throw string ("Registering MIDI IN failed");
 
-	for (int i=0;i<N_CHANNELS;i++)
+	for (int i=0;i<N_CHANNELS;++i)
 	{
 		#ifndef STEREO
 			out_port[i]=jack_port_register(jack_client, (OUT_NAME+IntToStr(i)).c_str(),
@@ -114,19 +114,19 @@ void start_jack(bool connect_audio_out, bool connect_midi_in)
 				int i=0;
 				while(ports[i]!=NULL)
 				{
-					for (int j=0;j<N_CHANNELS;j++)
+					for (int j=0;j<N_CHANNELS;++j)
 						if (jack_connect (jack_client, jack_port_name (out_port[j]), ports[i]))
 							output_warning("WARNING: could not connect some output port. this may or may not result\n"
 														 "         in being unable to produce sound. you can still connect them\n"
 														 "         manually. proceeding...");
-					i++;
+					++i;
 				}
 			#else
 				if (ports[1]==NULL)
 				{
 					output_note("NOTE: could not find two output ports. connecting to one, making everything\n"
 											"      mono. this is not fatal, proceeding...");
-					for (int j=0;j<N_CHANNELS;j++)
+					for (int j=0;j<N_CHANNELS;++j)
 					{
 						if (jack_connect (jack_client, jack_port_name (out_port[j]), ports[0]))
 							output_warning("WARNING: could not connect some output port. this may or may not result\n"
@@ -141,7 +141,7 @@ void start_jack(bool connect_audio_out, bool connect_midi_in)
 				}
 				else
 				{
-					for (int j=0;j<N_CHANNELS;j++)
+					for (int j=0;j<N_CHANNELS;++j)
 					{
 						if (jack_connect (jack_client, jack_port_name (out_port[j]), ports[0]))
 							output_warning("WARNING: could not connect some output port. this may or may not result\n"
@@ -178,7 +178,7 @@ void start_jack(bool connect_audio_out, bool connect_midi_in)
 					output_warning("WARNING: could not connect some MIDI OUT to my MIDI IN. this may or may not\n"
 												 "         result in being unable to receive any notes. you can still connect\n"
 												 "         the port manually. proceeding...");
-				i++;
+				++i;
 			}
 			free(ports);
 		}
@@ -218,7 +218,7 @@ int xrun_callback(void *notused)
 	if (history.size() >= xrun_n)
 	{
 		cout << "PANIC -- TOO MANY XRUNs! killing all voices" << endl<<endl;
-		for (int i=0;i<N_CHANNELS;i++)
+		for (int i=0;i<N_CHANNELS;++i)
 			channel[i]->panic();
 			
 		history.clear();
@@ -264,7 +264,7 @@ int process_callback(jack_nframes_t nframes, void *notused)
 
 
 
-	for (i=0;i<N_CHANNELS;i++)
+	for (i=0;i<N_CHANNELS;++i)
 	{
 		outbuf[i]=(jack_default_audio_sample_t*) jack_port_get_buffer(out_port[i], nframes);
 		#ifdef STEREO
@@ -294,15 +294,15 @@ int process_callback(jack_nframes_t nframes, void *notused)
 	//as long as there are some events left and getting one fails, get the next
 	while ((n_events) && (jack_midi_event_get(&event, inport, curr_event /*, nframes */)))
 	{
-		output_note("NOTE: lost a note :(");
-		n_events--;
-		curr_event++;
+		output_note("NOTE1: lost a note :(");
+		--n_events;
+		++curr_event;
 	}
 	
 	if (lastframe>=next_cleanup)
 	{
 		next_cleanup=lastframe+cleanup_interval;
-		for (i=0;i<N_CHANNELS;i++)
+		for (i=0;i<N_CHANNELS;++i)
 			channel[i]->cleanup();
 	}
 #ifdef DO_DEBUGGING_EVENTS
@@ -396,9 +396,9 @@ int process_callback(jack_nframes_t nframes, void *notused)
 			outtemp_nframes_left=0;	
 		}
 
-		for (i=0;i<real_nframes;i++)
+		for (i=0;i<real_nframes;++i)
 		{
-			for (int j=0;j<N_CHANNELS;j++)
+			for (int j=0;j<N_CHANNELS;++j)
 			{
 				outbuf[j][i]=outtemp[j];
 				#ifdef STEREO
@@ -416,7 +416,7 @@ int process_callback(jack_nframes_t nframes, void *notused)
 	if (upperbound<0) upperbound=0;
 	for (i=i;i<upperbound;i+=frameskip)
 #else
-	for (i=0;i<nframes;i++)
+	for (i=0;i<nframes;++i)
 #endif
 	{
 		while ((n_events) && (i>=event.time))
@@ -434,21 +434,21 @@ int process_callback(jack_nframes_t nframes, void *notused)
 				channel[chan]->event(event.buffer[0], event.buffer[1], event.buffer[2]);
 			}
 			
-			n_events--;
-			curr_event++;
+			--n_events;
+			++curr_event;
 
 			//as long as there are some events left and getting one fails, get the next
 			while ((n_events) && (jack_midi_event_get(&event, inport, curr_event /*, nframes */)))
 			{
-				output_note("NOTE: lost a note :(");
-				n_events--;
-				curr_event++;
+				output_note("NOTE2: lost a note :(");
+				--n_events;
+				++curr_event;
 			}
 		}
 		
 		maybe_calc_lfos();
 
-		for (int j=0;j<N_CHANNELS;j++)
+		for (int j=0;j<N_CHANNELS;++j)
 		{
 			#ifndef STEREO
 				outbuf[j][i]=jack_default_audio_sample_t(channel[j]->get_sample())/ONE*VOL_FACTOR;
@@ -473,7 +473,7 @@ int process_callback(jack_nframes_t nframes, void *notused)
 #ifdef FRAMESKIP
 	if (i!=nframes) // nicht aufgegangen?
 	{
-		for (int j=0;j<N_CHANNELS;j++)
+		for (int j=0;j<N_CHANNELS;++j)
 		{ // (1)
 			#ifndef STEREO
 				outtemp[j]=jack_default_audio_sample_t(channel[j]->get_sample())/ONE*VOL_FACTOR;
@@ -486,9 +486,9 @@ int process_callback(jack_nframes_t nframes, void *notused)
 		
 		outtemp_nframes_left=frameskip-nframes+i;
 
-		for (i=i; i<nframes; i++)
+		for (i=i; i<nframes; ++i)
 		{
-			for (int j=0;j<N_CHANNELS;j++)
+			for (int j=0;j<N_CHANNELS;++j)
 			{
 				outbuf[j][i]=outtemp[j];
 				#ifdef STEREO

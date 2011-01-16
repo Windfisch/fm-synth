@@ -46,14 +46,14 @@ void Channel::cleanup()
 			it=notes.erase(it);
 		}
 		else
-			it++;
+			++it;
 }
 
 fixed_t Channel::get_sample()
 {
 	fixed_t sum=0;
 	
-	for (list<NoteSkel*>::iterator it=notes.begin(); it!=notes.end(); it++)
+	for (list<NoteSkel*>::iterator it=notes.begin(), end=notes.end(); it!=end; ++it)
 		sum+=(*it)->get_sample();
 
 	return sum*volume >>SCALE;
@@ -90,7 +90,7 @@ void Channel::note_off(int note)
 
 void Channel::really_do_note_off(int note)
 {
-	for (list<NoteSkel*>::iterator it=notes.begin(); it!=notes.end(); it++)
+	for (list<NoteSkel*>::iterator it=notes.begin(); it!=notes.end(); ++it)
 		if ((*it)->get_note()==note)
 			(*it)->release();	
 }
@@ -147,7 +147,7 @@ void Channel::note_on(int note, int vel)
 			{
 				bool neednewnote=true;
 				//if (always_reattack) always_reattack is always true when in polymode
-					for (it=notes.begin(); it!=notes.end(); it++)
+					for (it=notes.begin(); it!=notes.end(); ++it)
 						if ( ((*it)->get_note()==note) && ((*it)->get_program()==program) )
 						{
 							neednewnote=false;
@@ -210,13 +210,13 @@ void Channel::apply_voice_limit()
 			list<NoteSkel*>::iterator it=notes.begin();
 
 			if (quick_release)
-				for (int i=0;i<diff;i++)
+				for (int i=0;i<diff;++i)
 				{
 					(*it)->release_quickly(quick_release);
-					it++;
+					++it;
 				}
 			else
-				for (int i=0;i<diff;i++)
+				for (int i=0;i<diff;++i)
 				{
 					(*it)->destroy();
 					it=notes.erase(it);
@@ -251,7 +251,7 @@ void Channel::set_controller(int con,int val)
 void Channel::set_user_controller(int con, int val)
 {
 	curr_prg.controller[con]=val;
-	for (set<parameter_t>::iterator it=curr_prg.controller_affects[con].begin(); it!=curr_prg.controller_affects[con].end(); it++)
+	for (set<parameter_t>::iterator it=curr_prg.controller_affects[con].begin(); it!=curr_prg.controller_affects[con].end(); ++it)
 		recalc_param(*it,curr_prg);
 }
 
@@ -262,7 +262,7 @@ void Channel::recalc_param(const parameter_t &par, program_t &prg)
 	list<term_t> *l;
 	l=&(prg.formula[par]);
 	
-	for (list<term_t>::iterator it=l->begin(); it!=l->end(); it++)
+	for (list<term_t>::iterator it=l->begin(); it!=l->end(); ++it)
 		val+=curr_prg.controller[it->c]*it->f;
 	
 	if (val<0) val=0;
@@ -296,7 +296,7 @@ void Channel::recalc_param(const parameter_t &par, program_t &prg)
 	// waveform etc it's in int (i.e., val/ONE is very small, while
 	// val is what we want)
 
-	for (list<NoteSkel*>::iterator it=notes.begin(); it!=notes.end(); it++)
+	for (list<NoteSkel*>::iterator it=notes.begin(); it!=notes.end(); ++it)
 		(*it)->set_param(par, val);
 	
 	curr_prg.set_param(par, val);
@@ -306,7 +306,7 @@ void Channel::reset_controllers()
 {
 	program_t *orig=&program_settings[program];
 	
-	for (int i=0;i<128;i++)
+	for (int i=0;i<128;++i)
 		set_user_controller(i,orig->controller[i]);
 }
 
@@ -363,7 +363,7 @@ void Channel::set_real_portamento_frames()
 		portamento_frames=0;
 		
 	list<NoteSkel*>::iterator it;
-	for (it=notes.begin(); it!=notes.end(); it++)
+	for (it=notes.begin(); it!=notes.end(); ++it)
 		(*it)->set_portamento_frames(portamento_frames);
 }
 
@@ -378,7 +378,7 @@ void Channel::set_hold_pedal(bool newstate)
 			//check for all held keys: is the key not pressed any more?
 			//                         is the key not in sostenuto_keys?
 			//if both conditions are fulfilled, release that note
-			for (set<int>::iterator it=held_keys.begin(); it!=held_keys.end(); it++)
+			for (set<int>::iterator it=held_keys.begin(); it!=held_keys.end(); ++it)
 				if ( (pressed_keys.find(*it)==pressed_keys.end()) &&
 					   (sostenuto_keys.find(*it)==sostenuto_keys.end()) )
 						note_off(*it);
@@ -400,7 +400,7 @@ void Channel::set_sostenuto_pedal(bool newstate)
 		else
 		{
 			if (hold_pedal_pressed==false)
-				for (set<int>::iterator it=sostenuto_keys.begin(); it!=sostenuto_keys.end(); it++)
+				for (set<int>::iterator it=sostenuto_keys.begin(); it!=sostenuto_keys.end(); ++it)
 					if (pressed_keys.find(*it)==pressed_keys.end())
 						really_do_note_off(*it);
 			
@@ -439,7 +439,7 @@ void Channel::kill_program(int prog)
 			it=notes.erase(it);
 		}
 		else
-			it++;
+			++it;
 }
 
 void Channel::maybe_reload_program(int prog)
@@ -451,7 +451,7 @@ void Channel::maybe_reload_program(int prog)
 void Channel::release_all()
 {
 	list<NoteSkel*>::iterator it;
-	for (it=notes.begin(); it!=notes.end(); it++)
+	for (it=notes.begin(); it!=notes.end(); ++it)
 		(*it)->release();
 }
 
@@ -466,6 +466,6 @@ void Channel::set_pitch_bend(float val)
 	pitchbend=pow(2.0,val/12.0)*ONE;
 	
 	list<NoteSkel*>::iterator it;
-	for (it=notes.begin(); it!=notes.end(); it++)
+	for (it=notes.begin(); it!=notes.end(); ++it)
 		(*it)->set_pitchbend(pitchbend);
 }

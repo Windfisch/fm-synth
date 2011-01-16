@@ -59,7 +59,7 @@ void lock_and_load_program(int prg_no, string file)
 	else
 		cout << "failed" << endl;
 	
-	for (int i=0;i<N_CHANNELS;i++)
+	for (int i=0;i<N_CHANNELS;++i)
 		channel[i]->maybe_reload_program(prg_no);
 	
 	do_request(prg_no, false);
@@ -139,7 +139,7 @@ void do_in_synth_cli()
 		else if (command=="panic")
 		{
 			if ((params=="") || (params=="all"))
-				for (int i=0;i<N_CHANNELS;i++)
+				for (int i=0;i<N_CHANNELS;++i)
 					channel[i]->panic();
 			else if (isnum(params))
 			{
@@ -153,7 +153,7 @@ void do_in_synth_cli()
 		else if (command=="release")
 		{
 			if ((params=="") || (params=="all"))
-				for (int i=0;i<N_CHANNELS;i++)
+				for (int i=0;i<N_CHANNELS;++i)
 					channel[i]->release_all();
 			else if (isnum(params))
 			{
@@ -180,7 +180,7 @@ void do_in_synth_cli()
 				if ((num>=0) && (num<128))
 				{
 					if (chanstr=="")
-						for (int i=0;i<N_CHANNELS;i++)
+						for (int i=0;i<N_CHANNELS;++i)
 							channel[i]->kill_program(num);
 					else
 					{
@@ -228,7 +228,7 @@ void do_in_synth_cli()
 		else if (command=="reset")
 		{
 			if ((params=="") || (params=="all"))
-				for (int i=0;i<N_CHANNELS;i++)
+				for (int i=0;i<N_CHANNELS;++i)
 					channel[i]->reset_controllers();
 			else if (isnum(params))
 			{

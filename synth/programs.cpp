@@ -66,7 +66,7 @@ void program_t::cleanup()
 {
 	if (osc_settings)
 	{
-		for (unsigned int i=0;i<n_osc;i++)
+		for (unsigned int i=0;i<n_osc;++i)
 			delete [] osc_settings[i].fm_strength;
 		delete [] osc_settings;
 	}
@@ -79,7 +79,7 @@ void program_t::cleanup()
 		delete [] pfactor.freq_env_amount;
 	if (pfactor.fm)
 	{
-		for (unsigned int i=0;i<n_osc;i++)
+		for (unsigned int i=0;i<n_osc;++i)
 			delete [] pfactor.fm[i];
 		delete [] pfactor.fm;
 	}
@@ -99,7 +99,7 @@ program_t& program_t::operator=(const program_t &that)
 		
 		this->cleanup();
 		
-		for (i=0;i<(sizeof(controller_affects)/sizeof(*controller_affects));i++)
+		for (i=0;i<(sizeof(controller_affects)/sizeof(*controller_affects));++i)
 			this->controller_affects[i]=that.controller_affects[i];
 		this->formula=that.formula;
 		this->n_osc=that.n_osc;
@@ -126,7 +126,7 @@ program_t& program_t::operator=(const program_t &that)
 		memcpy(this->pfactor.freq_env_amount, that.pfactor.freq_env_amount, sizeof(param_factor_t)*n_osc);
 		
 		this->pfactor.fm=new param_factor_t* [n_osc];
-		for (i=0;i<n_osc;i++)
+		for (i=0;i<n_osc;++i)
 		{
 			this->pfactor.fm[i]=new param_factor_t [n_osc];
 			memcpy(this->pfactor.fm[i], that.pfactor.fm[i], sizeof(param_factor_t)*n_osc);

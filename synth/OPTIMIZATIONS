@@ -8,6 +8,12 @@ Mögliche Optimierungen
                und filter-offset aus orig berechnen
    o  2% beim filter: evtl nur mit floats statt mit doubles rechnen?
    o <2% in note::get_sample u.a.: pitch-bending effizienter lösen?
+   o ??? Note's ctor kopiert viel unnötiges. besser:
+         channels bekommen je. eine kopie aller programme
+         noten bekommen nur noch pointer auf channeleigene kopie
+         note->set_param wird unnötig
+         pfactor-zeuch läuft extra: wird kopiert, und bei jeder
+         pfactor-änderung mit dem pfactor verrechnet         
    x  0% beim channel::get_sample: pro note immer mehrere samples auf
               einmal holen (iterator braucht recht viel leistung)
               wird von g++ automatisch wegoptimiert -> ok

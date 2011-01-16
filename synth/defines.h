@@ -56,7 +56,7 @@ extern float LFO_FREQ_HZ[];
 
 
 #define WAVE_RES 44100
-#define N_WAVEFORMS 5
+#define N_WAVEFORMS 8
 
 #define NO_CONT 128
 

@@ -25,7 +25,7 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	pfactor.out=new fixed_t [n_oscillators];
 	pfactor.freq_env_amount=new fixed_t [n_oscillators];
 	pfactor.fm=new fixed_t* [n_oscillators];
-	for (int i=0;i<n_oscillators;i++)
+	for (int i=0;i<n_oscillators;++i)
 		pfactor.fm[i]=new fixed_t [n_oscillators];
 	
 	freqfactor_factor=new double[n_oscillators];
@@ -33,13 +33,13 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	oscval=new fixed_t[n_oscillators];
 	old_oscval=new fixed_t[n_oscillators];
 	
-	for (int i=0;i<n_oscillators;i++)
+	for (int i=0;i<n_oscillators;++i)
 		envval[i]=oscval[i]=old_oscval[i]=0;
 	
 	envelope=new Envelope*[n_oscillators];
 	factor_env=new Envelope*[n_oscillators];
 	
-	for (int i=0;i<n_oscillators;i++)
+	for (int i=0;i<n_oscillators;++i)
 	{
 		envelope[i]=new Envelope(prg.env_settings[i], envelope_update_frames);
 		factor_env[i]=new Envelope(prg.osc_settings[i].freq_env, envelope_update_frames);
@@ -59,7 +59,7 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	//phase ever becomes negative (which would cause the program to
 	//segfault, or at least to produce noise). this saves an additional
 	//(slow) sanity check for the phase.
-	for (int i=0;i<n_oscillators;i++)
+	for (int i=0;i<n_oscillators;++i)
 	{
 		if (oscillator[i].custom_wave)
 			oscillator[i].phase=init_custom_osc_phase(oscillator[i].custom_wave->wave_len, oscillator[i].custom_wave->samp_rate);
@@ -108,7 +108,7 @@ Note::~Note()
 {
 	int i;
 	
-	for (i=0;i<n_oscillators;i++)
+	for (i=0;i<n_oscillators;++i)
 	{
 		delete [] oscillator[i].fm_strength;
 		delete envelope[i];
@@ -138,12 +138,12 @@ void Note::recalc_factors()
 	pfactor.filter_res=calc_pfactor(curr_prg->pfactor.filter_res, vel);
 	pfactor.filter_offset=calc_pfactor(curr_prg->pfactor.filter_offset, vel);
 	
-	for (int i=0;i<n_oscillators;i++)
+	for (int i=0;i<n_oscillators;++i)
 	{
 		pfactor.out[i]=calc_pfactor(curr_prg->pfactor.out[i], vel) * volume_factor;
 		pfactor.freq_env_amount[i]=calc_pfactor(curr_prg->pfactor.freq_env_amount[i], vel);
 
-		for (int j=0;j<n_oscillators;j++)
+		for (int j=0;j<n_oscillators;++j)
 			pfactor.fm[i][j]=calc_pfactor(curr_prg->pfactor.fm[i][j], vel);
 	}
 }
@@ -151,12 +151,12 @@ void Note::recalc_factors()
 void Note::apply_pfactor()
 {
 	//apply pfactor to all necessary parameters
-	for (int i=0;i<n_oscillators;i++)
+	for (int i=0;i<n_oscillators;++i)
 	{
 		oscillator[i].output=orig.oscillator[i].output*pfactor.out[i] >>SCALE;
 		oscillator[i].freq_env_amount=orig.oscillator[i].freq_env_amount*pfactor.freq_env_amount[i] /ONE; //because it's a float
 		
-		for (int j=0;j<n_oscillators;j++)
+		for (int j=0;j<n_oscillators;++j)
 			oscillator[i].fm_strength[j]=orig.oscillator[i].fm_strength[j]*pfactor.fm[i][j] >>SCALE;
 	}
 	filter_params.env_amount=orig.filter_params.env_amount*pfactor.filter_env /ONE;
@@ -247,7 +247,7 @@ void Note::set_param(const parameter_t &p, fixed_t v) //ACHTUNG:
 
 bool Note::still_active()
 {
-	for (int i=0; i<n_oscillators; i++)
+	for (int i=0; i<n_oscillators; ++i)
 		if ((oscillator[i].output>0) && (envelope[i]->still_active()))
 			return true;
 	
@@ -259,7 +259,7 @@ bool Note::still_active()
 //when called a second time, there shall be no effect
 void Note::release_quickly(jack_nframes_t maxt)
 {
-	for (int i=0;i<n_oscillators;i++)
+	for (int i=0;i<n_oscillators;++i)
 	{
 		if (envelope[i]->get_release() > maxt)
 			envelope[i]->set_release(maxt);
@@ -274,7 +274,7 @@ void Note::release_quickly(jack_nframes_t maxt)
 
 void Note::release()
 {
-	for (int i=0;i<n_oscillators;i++)
+	for (int i=0;i<n_oscillators;++i)
 	{
 		envelope[i]->release_key();
 		factor_env[i]->release_key();
@@ -286,7 +286,7 @@ void Note::release()
 
 void Note::reattack()
 {
-	for (int i=0;i<n_oscillators;i++)
+	for (int i=0;i<n_oscillators;++i)
 	{
 		envelope[i]->reattack();	
 		factor_env[i]->reattack();
@@ -301,7 +301,7 @@ void Note::do_ksl()
 { //osc.ksl is in Bel/octave (i.e. dB/10)
   //if ksl=1, this means that for each octave the loudness
   //decreases by half
-	for (int i=0;i<n_oscillators;i++)
+	for (int i=0;i<n_oscillators;++i)
 	{
 		if (oscillator[i].ksl==0)
 			envelope[i]->set_max(ONE);
@@ -312,7 +312,7 @@ void Note::do_ksl()
 
 void Note::do_ksr()
 {
-	for (int i=0;i<n_oscillators;i++)
+	for (int i=0;i<n_oscillators;++i)
 		envelope[i]->set_ratefactor(1.0 / pow(freq>>SCALE, oscillator[i].ksr));
 }
 
@@ -329,7 +329,7 @@ fixed_t Note::get_sample()
 		
 		do_ksl();
 		
-		portamento_t++;
+		++portamento_t;
 	}
 
 	fixed_t actual_freq=freq*pitchbend >>SCALE;
@@ -352,7 +352,7 @@ fixed_t Note::get_sample()
 		{
 			sync_phase-=ONE;
 			
-			for (i=0;i<n_oscillators;i++)
+			for (i=0;i<n_oscillators;++i)
 				if (oscillator[i].sync)
 				{
 					if (oscillator[i].custom_wave)
@@ -364,11 +364,11 @@ fixed_t Note::get_sample()
 	}
 	
 	
-	env_frame_counter++;
+	++env_frame_counter;
 	if (env_frame_counter>=envelope_update_frames)
 	{
 		env_frame_counter=0;
-		for (i=0;i<n_oscillators;i++)
+		for (i=0;i<n_oscillators;++i)
 		{
 			envval[i]=envelope[i]->get_level();
 			
@@ -378,11 +378,11 @@ fixed_t Note::get_sample()
 	}
 	
 	
-	for (i=0;i<n_oscillators;i++)
+	for (i=0;i<n_oscillators;++i)
 	{
 		fm=0;
 		
-		for (j=0;j<n_oscillators;j++)
+		for (j=0;j<n_oscillators;++j)
 			if (oscillator[i].fm_strength[j]!=0) //osc_j affects osc_i (FM)
 				fm+=old_oscval[j]*oscillator[i].fm_strength[j];
 
@@ -417,7 +417,7 @@ fixed_t Note::get_sample()
 	
 	if (filter_params.enabled)
 	{
-		filter_update_counter++;
+		++filter_update_counter;
 		if (filter_update_counter>=filter_update_frames)
 		{
 			filter_update_counter=0;

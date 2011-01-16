@@ -10,7 +10,7 @@ void uninit_lfo(int i)
 {
 	if (lfo[i])
 	{
-		for (int j=0;j<lfo_res[i];j++)
+		for (int j=0;j<lfo_res[i];++j)
 			delete [] lfo[i][j];
 		
 		delete [] lfo[i];
@@ -26,11 +26,11 @@ void init_lfo(int i)
 	lfo_res[i]=samp_rate/lfo_freq_hz[i]/lfo_update_frames;
 
 	lfo[i]=new fixed_t* [lfo_res[i]];
-	for (int j=0;j<lfo_res[i];j++)
+	for (int j=0;j<lfo_res[i];++j)
 	{
 		lfo[i][j]=new fixed_t [N_LFO_LEVELS];
 		float temp=sin(j*2.0*3.141592654/lfo_res[i]);
-		for (int k=0;k<N_LFO_LEVELS;k++)
+		for (int k=0;k<N_LFO_LEVELS;++k)
 			lfo[i][j][k]= (1.0 + temp*(float(LFO_MAX)*k/N_LFO_LEVELS)) * ONE;
 	}
 
@@ -50,7 +50,7 @@ void maybe_calc_lfos()
 	{
 		lfocnt=lfo_update_frames;
 		
-		for (int i=0;i<N_LFOS;i++)
+		for (int i=0;i<N_LFOS;++i)
 		{
 			lfo_phase[i]=(lfo_phase[i]+1)%lfo_res[i];
 			curr_lfo[i]=lfo[i][lfo_phase[i]];
@@ -64,7 +64,7 @@ void maybe_calc_lfos()
 		//temp ranges between -ONE and ONE
 		fixed_t temp = (float(rand())/(RAND_MAX/2)  - 1.0) * ONE;
 		
-		for (int i=0;i<N_LFO_LEVELS;i++)
+		for (int i=0;i<N_LFO_LEVELS;++i)
 			sample_and_hold[i]= temp*i/(N_LFO_LEVELS-1) + ONE;
 		
 		curr_lfo[SNH_LFO]=sample_and_hold;
@@ -72,6 +72,6 @@ void maybe_calc_lfos()
 		// does not eat up the cpu too much ;)
 	}
 	
-	lfocnt--;
-	snhcnt--;
+	--lfocnt;
+	--snhcnt;
 }

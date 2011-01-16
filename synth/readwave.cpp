@@ -102,7 +102,7 @@ void read_wave(const char *fn, custom_wave_t *result)
 					result->wave=new fixed_t[n_samples];
 					
 					double sample;
-					for (int i=0;i<n_samples;i++)
+					for (int i=0;i<n_samples;++i)
 					{
 						if (feof(f))
 							throw string("unexpected end-of-file");
