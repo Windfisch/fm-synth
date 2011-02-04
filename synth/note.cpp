@@ -178,7 +178,7 @@ void Note::set_param(const parameter_t &p, fixed_t v) //ACHTUNG:
 		case KSR: oscillator[p.osc].ksr=float(v)/ONE; break;
 		case KSL: oscillator[p.osc].ksl=float(v)/ONE; break;
 
-		case FACTOR: orig.oscillator[p.osc].factor=v; oscillator[p.osc].factor=v*freqfactor_factor[p.osc]; break;
+		case FACTOR: orig.oscillator[p.osc].factor=pow(2.0, (double)v/12.0/ONE)*ONE; oscillator[p.osc].factor=v*freqfactor_factor[p.osc]; break;
 		case MODULATION: orig.oscillator[p.osc].fm_strength[p.index]=v; apply_pfactor(); break;
 		case OUTPUT: orig.oscillator[p.osc].output=v; apply_pfactor(); break;
 		case TREMOLO: oscillator[p.osc].tremolo_depth=v; break;

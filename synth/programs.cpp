@@ -1,6 +1,7 @@
 #include <string>
 #include <cstring>
 #include <dlfcn.h>
+#include <cmath>
 
 #include "programs.h"
 #include "globals.h"
@@ -157,7 +158,7 @@ void program_t::set_param(const parameter_t &p, fixed_t v) //ACHTUNG:
 		case KSR: osc_settings[p.osc].ksr=float(v)/ONE; break;
 		case KSL: osc_settings[p.osc].ksl=float(v)/ONE; break;
 
-		case FACTOR: osc_settings[p.osc].factor=v; break;
+		case FACTOR: osc_settings[p.osc].factor=pow(2.0, (double)v/12.0/ONE)*ONE; break;
 		case MODULATION: osc_settings[p.osc].fm_strength[p.index]=v; break;
 		case OUTPUT: osc_settings[p.osc].output=v; break;
 		case TREMOLO: osc_settings[p.osc].tremolo_depth=v; break;

@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <fstream>
+#include <cmath>
 
 #include "parser.h"
 #include "defines.h"
@@ -413,7 +414,7 @@ program_t parse(string fn)
 							}
 							break;
 						case FACTOR:
-							osc[ind].factor=val*ONE;
+							osc[ind].factor=pow(2.0,val/12.0) *ONE;
 							break;
 						case TREMOLO:
 							osc[ind].tremolo_depth=int(val);
