@@ -85,12 +85,12 @@ void do_in_synth_cli()
 	int num;
 	
 	if (signal(2,signal_handler)==SIG_ERR)
-		output_warning("WARNING: failed to set signal handler in the in-synth-cli. pressing enter will\n"
+		output_warning("WARNING: failed to set signal handler in the in-synth-cli. pressing ctrl+c will\n"
 		               "         kill the synth, so be careful. this is not fatal");
 
 	fatal_warnings=false;
 
-	while (true)
+	while (cin.good())
 	{
 		cout << PROMPT << flush;
 		getline(cin,input);
@@ -516,7 +516,9 @@ void do_in_synth_cli()
 				if (freq>=0)
 				{
 					snh_freq_hz=freq;
-					init_snh(); //no uninit neccessary, as this only calculates an integer
+					init_snh(); //no uninit necessary, as this only calculates an integer
+					            //no lock necessary, as a race-condition would only cause
+					            //  the snh be calculated some times more
 				}
 				else
 					cout << "error: sample-and-hold-frequency must be greater than zero"<<endl;
@@ -529,4 +531,8 @@ void do_in_synth_cli()
 			cout << "error: unrecognized command '"<<command<<"'"<<endl;
 		}
 	}
+
+	if (signal(2,SIG_DFL)==SIG_ERR)
+		output_warning("WARNING: failed to reset signal handler in the in-synth-cli. you will not be\n"
+		               "         able to kill the synth with ctrl+c, try sending SIGTERM instead");
 }

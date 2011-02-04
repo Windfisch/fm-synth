@@ -2,17 +2,16 @@
     wenn man danach die noten spielen will. nicht reproduzierbar
 
 TODO für den synth
+	 o im in-synth-cli: lfos- und snh-neusetzen ist falsch
+	 	    es muss IMMER gelockt werden.
+	 	    allerdings muss maybe_calc_lfos gelockt werden, die noten können
+	 	    weiter bestehen
    o frameskip vlt nicht ++en?
-   o seltener cleanup rufen, stattdessen als inaktiv markieren
-     -> effekt: noten können wiederverwendet werden, seltenere ctor-aufrufe
-	 
+   o chorus, reverb etc.
+   o max_pitchbend per controller setzen?
+     per RPN, NRPN
+   o nur auf bestimmte channels reagieren
    o RAM aufräumen?
-
-   o KSL mit powf und floats statt mit double umschreiben
-   o statt lfo-nummer direkten zugriff auf curr_lfo angeben?
-   o bei tremolo (und vibrato?): eventuell nicht prüfen, obs aktiviert
-     ist, sondern zur not einfach *1 rechnen?
-   o beim default_program vielleicht auch ein optimiertes objekt benutzen?
 
    o jedes programm eigene LFOs?
    o andere wellenformen bei LFOs?
@@ -24,13 +23,7 @@ TODO für den synth
    o attack und release ggf. auf niedrigen wert (<=0.01) initen, um
      knackser zu vermeiden?
  
-   o chorus, reverb etc.
- 
    o konnte-nicht-verbinden-warnung weniger schlimm machen
- 
-   o max_pitchbend per controller setzen?
-     per RPN, NRPN
-   o nur auf bestimmte channels reagieren
  
   (o)bei program change vielleicht nicht _ALLE_ controller resetten?
 

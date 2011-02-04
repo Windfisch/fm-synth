@@ -74,6 +74,8 @@ TODO für den synth
    x optimierung: foo++ durch ++foo ersetzen
    x optimierung: den relevanten iterationen: foo.end() cachen!
    x mehr wellen für wave[]
+	 x wenn aufgehängt, kann er mit ctrl+c nicht mehr abgebrochen werden!
+	 x ctrl+d führt zu bug
 	 
 
 TODO fürs CLI

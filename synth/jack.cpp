@@ -459,7 +459,7 @@ int process_callback(jack_nframes_t nframes, void *notused)
 			#endif  // if the above changes, (1) must also change
 			
 			#ifdef FRAMESKIP
-				for (size_t k=i+frameskip-1;k>i;k--)
+				for (size_t k=i+frameskip-1;k>i;--k)
 				{
 					outbuf[j][k]=outbuf[j][i];
 					#ifdef STEREO
