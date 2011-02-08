@@ -10,10 +10,13 @@
 #include "globals.h"
 #include "load.h"
 #include "lfos.h"
+#include "watch_files.h"
 
 using namespace std;
 
 #define PROMPT "> "
+
+pthread_mutex_t prog_load_mutex;
 
 void signal_handler(int sig)
 {
@@ -49,6 +52,36 @@ void do_request(int prg_no, bool susp)
 
 void lock_and_load_program(int prg_no, string file)
 {
+	pthread_mutex_lock(&prog_load_mutex);
+	
+	remove_watch(prg_no);
+	
+	do_request(prg_no, true);
+	
+	if (load_program(file,program_settings[prg_no]))
+	{
+		cout << "success" << endl;
+		programfile[prg_no]=file;
+
+		add_watch(prg_no);
+	}
+	else
+		cout << "failed" << endl;
+	
+	for (int i=0;i<N_CHANNELS;++i)
+		channel[i]->maybe_reload_program(prg_no);
+	
+	do_request(prg_no, false);
+
+	pthread_mutex_unlock(&prog_load_mutex);
+}
+
+//only use this, if you don't want the file-watches to be updated
+//i.e., only when reloading a program!
+void lock_and_load_program_no_watch_updates(int prg_no, string file)
+{
+	pthread_mutex_lock(&prog_load_mutex);
+
 	do_request(prg_no, true);
 	
 	if (load_program(file,program_settings[prg_no]))
@@ -63,6 +96,8 @@ void lock_and_load_program(int prg_no, string file)
 		channel[i]->maybe_reload_program(prg_no);
 	
 	do_request(prg_no, false);
+
+	pthread_mutex_unlock(&prog_load_mutex);
 }
 
 void lock_and_change_lfo(int lfo_no, float freq)
@@ -83,6 +118,8 @@ void do_in_synth_cli()
 	string command;
 	string params;
 	int num;
+
+	pthread_mutex_init(&prog_load_mutex, NULL);
 	
 	if (signal(2,signal_handler)==SIG_ERR)
 		output_warning("WARNING: failed to set signal handler in the in-synth-cli. pressing ctrl+c will\n"

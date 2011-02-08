@@ -76,6 +76,7 @@ TODO für den synth
    x mehr wellen für wave[]
 	 x wenn aufgehängt, kann er mit ctrl+c nicht mehr abgebrochen werden!
 	 x ctrl+d führt zu bug
+   x watcher implementieren (per inotify)
 	 
 
 TODO fürs CLI
@@ -98,6 +99,7 @@ TODO fürs CLI
    x .so unloaden!
    * lfo-maxima getrennt regeln. [abgelehnt]
 	 x on-the-fly panic, einzelne channels, einzelne instrumente, etc
+   x CLI-flag für watch-files/don't-watch
 
 
 TODO für den compiler

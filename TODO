@@ -1,7 +1,15 @@
+!!! interface der compilten note und korrespondierende funktion
+    im synth stimmen nicht mehr überein! ÄNDERN!
+
 !!! SEGFAULT beim laden einer nicht-existenten datei per in-synth-cli
     wenn man danach die noten spielen will. nicht reproduzierbar
 
 TODO für den synth
+   o file-watcher ist unsauber: inotify_map_mutex und prog_load_mutex
+     werden eigentlich zu spät erstellt; bei EXTREM schnellen events
+     könnte ein noch nicht existenter mutex gelockt werden
+   o lock_and_load_program_no_watch_updates und auch die requests
+     passen nicht wirklich ins in-synth-cli. vlt woandershin schieben?
 	 o im in-synth-cli: lfos- und snh-neusetzen ist falsch
 	 	    es muss IMMER gelockt werden.
 	 	    allerdings muss maybe_calc_lfos gelockt werden, die noten können

@@ -29,6 +29,7 @@ extern bool quiet;
 
 extern bool connect_audio, connect_midi;
 
+extern bool watchfiles;
 
 extern float cleanup_interval_sec;
 extern float snh_freq_hz;

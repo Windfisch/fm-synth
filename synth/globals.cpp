@@ -18,6 +18,7 @@ bool quiet=false;
 
 bool connect_audio=true, connect_midi=true;
 
+bool watchfiles=true;
 
 float cleanup_interval_sec=0;
 float snh_freq_hz=0;

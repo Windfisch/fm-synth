@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
+#include <pthread.h>
 
 #include "jack.h"
 #include "load.h"
@@ -15,6 +16,7 @@
 #include "communication.h"
 #include "note_loader.h"
 #include "lfos.h"
+#include "watch_files.h"
 
 using namespace std;
 
@@ -22,9 +24,10 @@ using namespace std;
 void cleanup();
 void dump_options();
 
+pthread_t watcher_thread=-1;
 
 int main(int argc, char** argv)
-{
+{	
 	init_communication();
 	
   for (int i=0;i<N_LFOS;++i)
@@ -118,6 +121,21 @@ int main(int argc, char** argv)
 		
 		start_jack(connect_audio, connect_midi);
 		
+		if (watchfiles)
+		{
+			if (pthread_create(&watcher_thread, NULL, watch_files, NULL) != 0)
+			{
+				output_warning("WARNING: could not start file-watcher thread. you must inform me about\n"
+				               "         updated files manually.");
+				watcher_thread=-1;
+			}
+		}
+		else
+		{
+			output_note("NOTE: you disabled the watching of files. you must inform me about\n"
+									"         updated files manually.");
+		}
+			
 		do_in_synth_cli();
 		
 		cleanup();
@@ -135,6 +153,18 @@ int main(int argc, char** argv)
 
 void cleanup()
 {
+	if (watcher_thread!=-1)
+	{
+		if (pthread_cancel(watcher_thread) != 0)
+		{
+			output_warning("WARNING: could not cancel watcher thread!");
+		}
+		else
+		{
+			pthread_join(watcher_thread,NULL);
+		}
+	}
+	
 	exit_jack();
 	
 	uninit_communication();

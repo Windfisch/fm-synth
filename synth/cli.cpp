@@ -30,6 +30,8 @@ void parse_args(int argc, char** argv)
 			{"xruns",     required_argument,  0, 'x'},
 			{"dir",           required_argument,  0, 'd'},
 			{"directory",     required_argument,  0, 'd'},
+			{"no-watch-files",   no_argument,				0, 'w'},
+			{"dont-watch-files",   no_argument,				0, 'w'},
 			{"program",       required_argument,  0, 'p'},
 			{"cleanup-interval",       required_argument,  0, 'i'},
 			{"lfo0-freq",       required_argument,  0, 400}, //FINDLFO
@@ -59,7 +61,7 @@ void parse_args(int argc, char** argv)
 	while (optind<argc)
 	{
 		int index=-1;
-		int result=getopt_long(argc,argv,"hVf:d:p:i:c:x:vqFam", long_options, &index);
+		int result=getopt_long(argc,argv,"hVf:d:p:i:c:x:vqFamw", long_options, &index);
 		if (result==-1) break;
 		
 		switch (result)
@@ -130,6 +132,8 @@ void parse_args(int argc, char** argv)
 									cleanup_interval_sec=atof(optarg);
 								else
 									output_warning("WARNING: not a number in --interval option. ignoring it...");
+								break;
+			case 'w': watchfiles=false;
 								break;
 			case 304:	if (isfloat(optarg))
 									snh_freq_hz=atof(optarg);
