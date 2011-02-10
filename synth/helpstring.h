@@ -15,10 +15,10 @@
 "    -x   --xruns N:T           kill all voices when N xruns or more \n"\
 "                               happen in T seconds\n"\
 "\n"\
+"    -i   --cleanup-interval N  try cleaning up notes every N seconds\n"\
 "    --filter-update-freq FREQ  how often the filter settings, the lfo-\n"\
 "    --lfo-update-freq FREQ     or envelope-current-values get updated\n"\
 "    --env(elope)-update-freq FREQ  (low -> less accurate, but faster)\n"\
-"    -i   --cleanup-interval N  try cleaning up notes every N seconds\n"\
 "\n"\
 "    --lfoN-freq   --snh-freq   set frequency for lfos or the sample-and-\n"\
 "        --sample-and-hold-freq   hold-generator\n"\

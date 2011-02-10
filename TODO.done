@@ -77,6 +77,10 @@ TODO für den synth
 	 x wenn aufgehängt, kann er mit ctrl+c nicht mehr abgebrochen werden!
 	 x ctrl+d führt zu bug
    x watcher implementieren (per inotify)
+   * chorus, reverb etc. [nein, wird per jack-rack gemacht]
+   * frameskip vlt nicht ++en? [doch]
+  (o)bei filter-envelopes: ksr/ksl? nää.
+  (o)resonanz-tremolo bei tiefpass? nää.
 	 
 
 TODO fürs CLI

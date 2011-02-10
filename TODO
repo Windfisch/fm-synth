@@ -14,9 +14,7 @@ TODO für den synth
 	 	    es muss IMMER gelockt werden.
 	 	    allerdings muss maybe_calc_lfos gelockt werden, die noten können
 	 	    weiter bestehen
-   o frameskip vlt nicht ++en?
-   o chorus, reverb etc.
-   o max_pitchbend per controller setzen?
+   o max_pitchbend, max_port_time etc per controller setzen?
      per RPN, NRPN
    o nur auf bestimmte channels reagieren
    o RAM aufräumen?
@@ -36,9 +34,6 @@ TODO für den synth
   (o)bei program change vielleicht nicht _ALLE_ controller resetten?
 
   (o)fehlerklassen für fatale fehler (von string abgeleitet)
-
-  (o)bei filter-envelopes: ksr/ksl? nää.
-  (o)resonanz-tremolo bei tiefpass? nää.
 
 
 TODO für den compiler
