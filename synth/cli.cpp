@@ -5,17 +5,20 @@
 #include "util.h"
 #include "globals.h"
 #include "load.h"
+#include "helpstring.h"
 
 using namespace std;
 
+#define VERSION "1.0"
+
 void show_help()
 {
-	cout << "TODO: help text" << endl;
+	cout << HELPSTRING <<endl;
 }
 
 void show_version()
 {
-	cout << "TODO: softsynth version foo" << endl;
+	cout << "flo's synth version "VERSION << endl; // TODO
 }
 
 void parse_args(int argc, char** argv)
@@ -86,12 +89,14 @@ void parse_args(int argc, char** argv)
 									size_t pos=stropt.find(':');
 									if (pos==string::npos)
 										output_warning("expected 'n_xruns:time' in --xruns option, found no ':'");
-									
-									xrun_n=atoi(stropt.substr(0,pos).c_str());
-									xrun_time=atof(stropt.substr(pos+1).c_str());
-									
-									if (xrun_n<=0) xrun_n=0;
-									if (xrun_time<=0) xrun_time=0;
+									else
+									{
+										xrun_n=atoi(stropt.substr(0,pos).c_str());
+										xrun_time=atof(stropt.substr(pos+1).c_str());
+										
+										if (xrun_n<=0) xrun_n=0;
+										if (xrun_time<=0) xrun_time=0;
+									}
 								}
 								break;
 			case 'd': add_dir(optarg); break;

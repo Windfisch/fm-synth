@@ -27,6 +27,11 @@ depend dep: $(SRC)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
+helpstring.h: helpstring.txt
+	echo '#define HELPSTRING \' > helpstring.h && \
+	cat helpstring.txt | ./text_to_h.sh >> helpstring.h \
+	|| rm helpstring.h
+
 .PHONY: clean dep depend
 
 clean:
