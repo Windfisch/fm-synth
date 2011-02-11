@@ -5,6 +5,10 @@
     wenn man danach die noten spielen will. nicht reproduzierbar
 
 TODO für den synth
+   o square- und sawtooth mit einstellbarer pulsweite
+      -> invers-saw (0,1) = saw(1,0)
+      -> dreieck = saw(0.5,0.5)
+   o invertierter pulse-sin
    o file-watcher ist unsauber: inotify_map_mutex und prog_load_mutex
      werden eigentlich zu spät erstellt; bei EXTREM schnellen events
      könnte ein noch nicht existenter mutex gelockt werden
@@ -17,7 +21,6 @@ TODO für den synth
    o max_pitchbend, max_port_time etc per controller setzen?
      per RPN, NRPN
    o nur auf bestimmte channels reagieren
-   o RAM aufräumen?
 
    o jedes programm eigene LFOs?
    o andere wellenformen bei LFOs?

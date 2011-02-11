@@ -81,6 +81,7 @@ TODO für den synth
    * frameskip vlt nicht ++en? [doch]
   (o)bei filter-envelopes: ksr/ksl? nää.
   (o)resonanz-tremolo bei tiefpass? nää.
+   * RAM aufräumen? [keine leaks, und linux macht das schon]
 	 
 
 TODO fürs CLI
