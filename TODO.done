@@ -82,6 +82,10 @@ TODO für den synth
   (o)bei filter-envelopes: ksr/ksl? nää.
   (o)resonanz-tremolo bei tiefpass? nää.
    * RAM aufräumen? [keine leaks, und linux macht das schon]
+   x square- und sawtooth mit einstellbarer pulsweite
+      -> invers-saw (0,1) = saw(1,0)
+      -> dreieck = saw(0.5,0.5)
+   x invertierter pulse-sin
 	 
 
 TODO fürs CLI

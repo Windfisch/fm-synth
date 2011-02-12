@@ -13,18 +13,55 @@
 3 pulse-sine    /   |     /   |
                /    |____/    |____
                     
-                    _____     _____
-4 square            
-               _____     _____
-                       
-                       . |        . |
-5 sawtooth         . '   |    . '   |
-               . '       |. '       |
-                 
-                / \       / \
-6 triangle     /   \     /   \
-                    \   /     \   /
-                     \ /       \ /
-               
-7 noise        
-               
+                   ---.      ---.
+4 inverted         |   \     |   \
+  pulse-sine   ____|    \____|    \
+                    
+
+5 noise        
+
+
+100 to 300: sawtooth with variable rising/falling phases
+
+                                . |        . |
+100: normal sawtooth        . '   |    . '   |
+                        . '       |. '       |
+                                .          .
+in between                  . '  \     . '  \
+                        . '       \. '       \
+
+                         / \       / \
+200: triangle           /   \     /   \
+                             \   /     \   /
+                              \ /       \ /
+                          .          .
+in between               /  ' .     /  ' .
+                        /       ' ./       ' .
+
+                        | .        | .
+300: inverted sawtooth  |   ' .    |   ' .
+                        |       ' .|       ' .
+
+
+
+400 to 600: pulse with variable high/low ratio
+
+             1      
+400 DC       0 _   _   _   _   _   _  
+            -1 ____________________
+
+             1        ___       ___
+in between   0 _   _   _   _   _   _  
+            -1 _______   _______
+
+             1      _____     _____
+500 square   0 _   _   _   _   _   _  
+            -1 _____     _____
+
+             1    _______   _______
+in between   0 _   _   _   _   _   _  
+            -1 ___       ___  
+
+             1 ____________________
+600 DC       0 _   _   _   _   _   _  
+            -1 

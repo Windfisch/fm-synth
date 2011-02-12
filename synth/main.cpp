@@ -96,22 +96,69 @@ int main(int argc, char** argv)
 			load_program(programfile[i],program_settings[i]);
 		}
 		
+		fixed_t* temp=new fixed_t[WAVE_RES];
+		for (i=0;i<WAVE_RES;i++)
+			temp[i]=0;
+		
 		for (i=0;i<N_WAVEFORMS;++i)
+			wave[i]=temp;
+		
+		for (i=0;i<N_NORMAL_WAVEFORMS;i++)
 			wave[i]=new fixed_t[WAVE_RES];
-			
-		for (i=0;i<WAVE_RES;++i)
+		
+		for (i=WAVE_SAW_START; i<WAVE_SAW_START+WAVE_SAW_N; i++)
+			wave[i]=new fixed_t[WAVE_RES];
+					
+		for (i=WAVE_PULSE_START; i<WAVE_PULSE_START+WAVE_PULSE_N; i++)
+			wave[i]=new fixed_t[WAVE_RES];
+					
+		for (i=0;i<WAVE_RES;++i) //init the "normal" waves
 		{
-			float temp1, temp2;
-			temp1=sin(i*2.0*3.141592654/WAVE_RES);
-			temp2=sin(i*3.141592654/WAVE_RES);
-			wave[0][i]=temp1*ONE;
-			wave[1][i]=temp2*ONE;
-			wave[2][i]=(i<=WAVE_RES/2) ? wave[0][i] : 0;
-			wave[3][i]= (i<=WAVE_RES/2) ? wave[1][i] : 0;
-			wave[4][i]=(i<WAVE_RES/2) ? ONE : -ONE;
-			wave[5][i]=(i<=WAVE_RES/2) ? (ONE*2*i/WAVE_RES) : (ONE*2*i/WAVE_RES - 2*ONE);
-			wave[6][i]=(i<=WAVE_RES/2) ? (ONE*2*i/WAVE_RES) : (ONE*2*(WAVE_RES-i)/WAVE_RES);
-			wave[7][i]=float(rand() - RAND_MAX/2) / (RAND_MAX/2) *ONE;
+			fixed_t temp1, temp2;
+			temp1=ONE*sin(i*2.0*3.141592654/WAVE_RES);
+			temp2=ONE*sin(i*3.141592654/WAVE_RES);
+			wave[0][i]=temp1;
+			wave[1][i]=temp2;
+			wave[2][i]= (i<=WAVE_RES/2) ? temp1 : 0;
+			wave[3][i]= (i<=WAVE_RES/2) ? temp2 : 0;
+			wave[4][i]= (i<=WAVE_RES/2) ? 0 : temp2;
+			wave[5][i]=float(rand() - RAND_MAX/2) / (RAND_MAX/2) *ONE;
+		}
+
+		for (int j=WAVE_SAW_START; j<WAVE_SAW_START+WAVE_SAW_N; j++) //init the saws
+		{
+			float rising, falling;
+			falling=(float) (j-WAVE_SAW_START)/(WAVE_SAW_N-1);
+			rising=1.0-falling;
+
+			int a,b,c;
+			a=WAVE_RES*(rising/2);
+			b=WAVE_RES*(rising/2 + falling);
+			c=WAVE_RES*falling;
+			
+			for (i=0;i<a;i++)
+				wave[j][i]=ONE * i/a;
+			
+			for (i=a;i<b;i++)
+				wave[j][i]=ONE  -  2*ONE * (i-a)/c;
+				
+			for (i=b;i<WAVE_RES;i++)
+				wave[j][i]=ONE * (i-b)/a   -  ONE;
+		}
+		
+		for (int j=WAVE_PULSE_START; j<WAVE_PULSE_START+WAVE_PULSE_N; j++) //init the pulses
+		{
+			float high, low;
+			high=(float) (j-WAVE_PULSE_START)/(WAVE_PULSE_N-1);
+			low=1.0-high;
+			
+			int a=WAVE_RES*high;
+			
+			for (i=0;i<a;i++)
+				wave[j][i]=ONE;
+			
+			for (i=a;i<WAVE_RES;i++)
+				wave[j][i]=-ONE;
 		}
 		
 		for (int i=0;i<N_CHANNELS;++i)

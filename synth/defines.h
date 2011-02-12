@@ -56,7 +56,34 @@ extern float LFO_FREQ_HZ[];
 
 
 #define WAVE_RES 44100
-#define N_WAVEFORMS 8
+
+
+// saw_start must be >= n_normal
+// pulse_start must be > saw_end
+// holes are allowed
+
+// 0..6 different stuff
+// 10..19 saw
+// 20..29 square is allowed, for example
+
+//SAW_N and PULSE_N should be odd numbers, otherwise you won't
+//get equal ratios for falling/rising or high/low
+//in english: you won't get a "normal" triangle wave or a "normal"
+//            square wave then
+#define N_NORMAL_WAVEFORMS 6
+#define WAVE_SAW_START 100
+#define WAVE_SAW_N 201
+#define WAVE_PULSE_START 400
+#define WAVE_PULSE_N 201
+
+#if ( (WAVE_SAW_START < N_NORMAL_WAVEFORMS) || \
+      (WAVE_PULSE_START < WAVE_SAW_START+WAVE_SAW_N) )
+  #error NORMAL WAVEFORMS, SAW- AND PULSE-WAVES MAY NOT OVERLAP!
+#endif
+
+#define N_WAVEFORMS (WAVE_PULSE_START+WAVE_PULSE_N)
+
+
 
 #define NO_CONT 128
 
