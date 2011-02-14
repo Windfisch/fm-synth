@@ -16,7 +16,10 @@
 #include "communication.h"
 #include "note_loader.h"
 #include "lfos.h"
-#include "watch_files.h"
+
+#ifdef WATCHFILES
+	#include "watch_files.h"
+#endif
 
 using namespace std;
 
@@ -24,7 +27,9 @@ using namespace std;
 void cleanup();
 void dump_options();
 
-pthread_t watcher_thread=-1;
+#ifdef WATCHFILES
+	pthread_t watcher_thread=-1;
+#endif
 
 int main(int argc, char** argv)
 {	
@@ -45,7 +50,9 @@ int main(int argc, char** argv)
 			if (lfo_freq_hz[i]<=0) lfo_freq_hz[i]=LFO_FREQ_HZ[i];
 
 		if (snh_freq_hz<=0) snh_freq_hz=SNH_FREQ_HZ;
-		if (frameskip<=-1) frameskip=0;
+		#ifdef FRAMESKIP
+			if (frameskip<=-1) frameskip=0;
+		#endif
 		if (max_port_time_sec<=0) max_port_time_sec=MAX_PORTAMENTO_TIME;
 		if (filter_update_freq_hz<=0) filter_update_freq_hz=FILTER_UPDATE_FREQ_HZ;
 		if (lfo_update_freq_hz<=0) lfo_update_freq_hz=LFO_UPDATE_FREQ_HZ;
@@ -55,8 +62,10 @@ int main(int argc, char** argv)
 		
 		dump_options();
 		
-		frameskip+=1; //because a value of 0 means using each frame,
-		              //a value of 1 means using each 2nd frame and so on
+		#ifdef FRAMESKIP
+			frameskip+=1; //because a value of 0 means using each frame,
+										//a value of 1 means using each 2nd frame and so on
+		#endif
 		
 		init_jack();
 
@@ -167,7 +176,8 @@ int main(int argc, char** argv)
 		srand (time(NULL));
 		
 		start_jack(connect_audio, connect_midi);
-		
+
+#ifdef WATCHFILES
 		if (watchfiles)
 		{
 			if (pthread_create(&watcher_thread, NULL, watch_files, NULL) != 0)
@@ -182,6 +192,10 @@ int main(int argc, char** argv)
 			output_note("NOTE: you disabled the watching of files. you must inform me about\n"
 									"         updated files manually.");
 		}
+#else
+	output_verbose("NOTE: support for watching of files isn't compiled in. you must\n"
+								 "         inform me about updated files manually.");
+#endif
 			
 		do_in_synth_cli();
 		
@@ -200,6 +214,7 @@ int main(int argc, char** argv)
 
 void cleanup()
 {
+#ifdef WATCHFILES
 	if (watcher_thread!=-1)
 	{
 		if (pthread_cancel(watcher_thread) != 0)
@@ -211,6 +226,7 @@ void cleanup()
 			pthread_join(watcher_thread,NULL);
 		}
 	}
+#endif
 	
 	exit_jack();
 	
@@ -236,7 +252,9 @@ void dump_options()
 	
 	cout << endl;
 	
-	cout << "frameskip:\t\t"<<frameskip<<endl;
+	#ifdef FRAMESKIP
+		cout << "frameskip:\t\t"<<frameskip<<endl;
+	#endif
 	cout << "cleanup-interval:\t"<<cleanup_interval_sec<<endl;
 	for (int i=0;i<N_LFOS;++i)
 		cout << "lfo"<<i<<" freq:\t\t"<<lfo_freq_hz[i]<<endl;

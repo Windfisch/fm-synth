@@ -29,7 +29,9 @@ extern bool quiet;
 
 extern bool connect_audio, connect_midi;
 
+#ifdef WATCHFILES
 extern bool watchfiles;
+#endif
 
 extern float cleanup_interval_sec;
 extern float snh_freq_hz;

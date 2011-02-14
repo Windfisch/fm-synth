@@ -1,6 +1,8 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 
+#define WATCHFILES //undef if you don't want support for it
+
 
 #define XRUN_TIME 2.0
 #define XRUN_N 8

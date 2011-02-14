@@ -1,3 +1,6 @@
+#include "defines.h"
+#ifdef WATCHFILES
+
 #include <iostream>
 #include <pthread.h>
 #include <unistd.h>
@@ -158,3 +161,5 @@ void add_watch(int prog)
 		pthread_mutex_unlock(&inotify_map_mutex);
 	}
 }
+
+#endif

@@ -10,7 +10,10 @@
 #include "globals.h"
 #include "load.h"
 #include "lfos.h"
-#include "watch_files.h"
+
+#ifdef WATCHFILES
+	#include "watch_files.h"
+#endif
 
 using namespace std;
 
@@ -54,7 +57,9 @@ void lock_and_load_program(int prg_no, string file)
 {
 	pthread_mutex_lock(&prog_load_mutex);
 	
-	remove_watch(prg_no);
+	#ifdef WATCHFILES
+		remove_watch(prg_no);
+	#endif
 	
 	do_request(prg_no, true);
 	
@@ -63,7 +68,9 @@ void lock_and_load_program(int prg_no, string file)
 		cout << "success" << endl;
 		programfile[prg_no]=file;
 
-		add_watch(prg_no);
+		#ifdef WATCHFILES
+			add_watch(prg_no);
+		#endif
 	}
 	else
 		cout << "failed" << endl;

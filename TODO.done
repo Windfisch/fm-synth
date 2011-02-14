@@ -86,6 +86,7 @@ TODO für den synth
       -> invers-saw (0,1) = saw(1,0)
       -> dreieck = saw(0.5,0.5)
    x invertierter pulse-sin
+   x file-watching und frameskip sauber per define (de)aktivieren!
 	 
 
 TODO fürs CLI

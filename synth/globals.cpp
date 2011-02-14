@@ -18,7 +18,9 @@ bool quiet=false;
 
 bool connect_audio=true, connect_midi=true;
 
+#ifdef WATCHFILES
 bool watchfiles=true;
+#endif
 
 float cleanup_interval_sec=0;
 float snh_freq_hz=0;

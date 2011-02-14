@@ -79,8 +79,12 @@ void parse_args(int argc, char** argv)
 			case 'm': connect_midi=false;  break;
 			case 'f': if (optarg)
 								{
-									frameskip=atoi(optarg);
-									if (frameskip<=0) frameskip=0;
+									#ifdef FRAMESKIP
+										frameskip=atoi(optarg);
+										if (frameskip<=0) frameskip=0;
+									#else
+										output_warning("WARNING: support for frameskipping isn't compiled in!");
+									#endif
 								}
 								break;
 			case 'x':	if (optarg)
@@ -138,7 +142,12 @@ void parse_args(int argc, char** argv)
 								else
 									output_warning("WARNING: not a number in --interval option. ignoring it...");
 								break;
-			case 'w': watchfiles=false;
+			case 'w': 
+								#ifdef WATCH_FILES
+									watchfiles=false;
+								#else
+									output_note("NOTE: support for watching files isn't compiled in, so you can't disable it");
+								#endif
 								break;
 			case 304:	if (isfloat(optarg))
 									snh_freq_hz=atof(optarg);

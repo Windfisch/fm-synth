@@ -109,13 +109,17 @@ void read_config(const char *cfg, bool complain=true)
 							
 						if (var=="frameskip")
 						{
-							if (valf<0)
-								output_warning("WARNING: invalid value for '"+var+"' ("+val+"). ignoring it...");
-								
-							if (frameskip==-1)
-								frameskip=valf;
-							else
-								output_verbose("NOTE: ignoring value for frameskip, another setting overrides this.");
+							#ifdef FRAMESKIP
+								if (valf<0)
+									output_warning("WARNING: invalid value for '"+var+"' ("+val+"). ignoring it...");
+									
+								if (frameskip==-1)
+									frameskip=valf;
+								else
+									output_verbose("NOTE: ignoring value for frameskip, another setting overrides this.");
+							#else
+								output_warning("WARNING: while parsing conf: support for frameskipping isn't compiled in!");
+							#endif
 						}
 						else
 						{

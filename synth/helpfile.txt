@@ -1,0 +1,29 @@
+Usage: ./synth [OPTIONS]
+-h                         show this help text
+-V                         show the version number
+
+-v                         be verbose
+-q                         be quiet
+-F --fatal-warnings        make warnings fatal
+-f --frameskip N           only do every Nth frame
+                           only available if support is compiled in,
+                           otherwise it's turned off by default
+-x --xruns N:T             kill all voices when N xruns occur in T seconds
+-d --dir(ectory) DIR       read that directory
+-w --{no|dont}-watch-files turn off watching files for changes
+                           only available if support is compiled in,
+                           otherwise it's turned off by default
+-p --program N:FILE        load FILE at program number N
+-i --cleanup-interval N    try cleaning up notes every N seconds
+--lfoN-freq --snh-freq     set frequency for lfos or the sample-and-hold
+    --sample-and-hold-freq generator
+-c --conf(ig) FILE         load the given config file
+--max-port TIME            set the maximum settable portamento time
+   --max-port(amento)-time (a MIDI value of 127 corresponds to this)
+--filter-update-freq FREQ  how often the filter settings, the lfo-
+--lfo-update-freq FREQ     or envelope-current-values get updated
+--env(elope)-update-freq FREQ  (low -> less accurate, but faster)
+-a                         don't automatically connect the output
+   --{no|dont}-connect-audio(-out)   ports to the speakers
+-m                         don't automatically connect the output
+   --{no|dont}-connect-midi(-in)     ports to midi devices
