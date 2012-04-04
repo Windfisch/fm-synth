@@ -85,6 +85,14 @@ void Envelope::reattack()
 	sustain=sustain_orig;
 }
 
+void Envelope::reset()
+{
+	state=ATTACK;
+	sustain=sustain_orig;
+	level=0;
+	t=0;
+}
+
 void Envelope::release_key()
 {
 	if (has_release_phase)

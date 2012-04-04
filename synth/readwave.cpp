@@ -1,5 +1,6 @@
 #include <string>
 #include <cstring>
+#include <cstdio>
 
 #include "readwave.h"
 #include "util.h"

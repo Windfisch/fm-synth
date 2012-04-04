@@ -1,10 +1,22 @@
 !!! interface der compilten note und korrespondierende funktion
-    im synth stimmen nicht mehr überein! ÄNDERN!
+    im synth stimmen nicht mehr überein! ÄNDERN! [obsolet]
 
 !!! SEGFAULT beim laden einer nicht-existenten datei per in-synth-cli
     wenn man danach die noten spielen will. nicht reproduzierbar
+    
+!!! SEGFAULT wegen nicht synchronisierter kommunikation bei panic()!
 
 TODO für den synth
+   o notes kriegen verkettete liste für FM-affect: "kein einfluss"
+     steht dann garnicht in der liste (macht aus O(n²) ein O(n))
+     (macht notencompiler hoffentlich obsolet)
+   o evtl wieder AM implementieren: hätte hoffentlich dann keinen
+     negativen einfluss wenn unbenutzt
+   o kommunikation sauber synchronisieren: außerhalb von process()
+     wird nurnoch ne struct mit funktionspointer und argument-union
+     in einen ringbuffer geschrieben. der eigentliche call erfolgt
+     dann in process()
+
    o defines säubern, schöner anordnen
    o frameskipping vlt immer einbauen?
    o testen, ob #define FRAMESKIP bei frameskip=0 nen speednachteil
@@ -43,7 +55,13 @@ TODO für den synth
   (o)fehlerklassen für fatale fehler (von string abgeleitet)
 
 
-TODO für den compiler
+
+TODO fürs CLI
+   x ...
+
+
+
+obsolet: TODO für den compiler
    o freq-envelopes und pfactor dafür auch für compiled_notes implementieren!
    o envelopes nur alle N frames updaten auch bei compiled notes implementieren!
    o zu testen: funktionieren no-release-envs auch in compilierten noten?
@@ -51,8 +69,3 @@ TODO für den compiler
    o envelope, filter, ggf. auch alles aus program.o im hauptprogramm
      lassen? d.h. via init funktionspointer übergeben oder virtuelle
      interfaceklassen benutzen (für envelope/filter z.B.)
-
-
-
-TODO fürs CLI
-   x ...

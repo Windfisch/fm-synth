@@ -17,6 +17,7 @@ class Envelope
 		Envelope(env_settings_t s, int frames=1);
 		void release_key();
 		void reattack();
+		void reset();
 		fixed_t get_level();
 		bool still_active();
 		void set_hold(bool h);		

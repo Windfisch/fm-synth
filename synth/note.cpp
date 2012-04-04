@@ -289,7 +289,7 @@ void Note::reattack()
 	for (int i=0;i<n_oscillators;++i)
 	{
 		envelope[i]->reattack();	
-		factor_env[i]->reattack();
+		factor_env[i]->reset();
 	}
 
 	if (filter_params.enabled)
