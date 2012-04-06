@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <signal.h>
-#include <unistd.h>
 #include <stdlib.h>
 
 #include "in_synth_cli.h"
@@ -26,33 +25,6 @@ void signal_handler(int sig)
 	cout << endl << PROMPT << flush;
 }
 
-void do_request(int prg_no, bool susp)
-{
-	pthread_mutex_lock(&suspend_request_mutex);
-	
-	suspend_request.prog=prg_no;
-	suspend_request.suspend=susp;
-	suspend_request.done=false;
-	
-	pthread_mutex_unlock(&suspend_request_mutex);
-	
-	
-	
-	while (true)
-	{
-		usleep(100000);
-
-		pthread_mutex_lock(&suspend_request_mutex);
-		if (suspend_request.done)
-		{
-			pthread_mutex_unlock(&suspend_request_mutex);
-			break;
-		}
-		else
-			pthread_mutex_unlock(&suspend_request_mutex);
-	}
-}
-
 void lock_and_load_program(int prg_no, string file)
 {
 	pthread_mutex_lock(&prog_load_mutex);
@@ -61,7 +33,7 @@ void lock_and_load_program(int prg_no, string file)
 		remove_watch(prg_no);
 	#endif
 	
-	do_request(prg_no, true);
+	do_request(request_t(request_t::SUSPEND_PROGRAM, prg_no));
 	
 	if (load_program(file,program_settings[prg_no]))
 	{
@@ -78,7 +50,7 @@ void lock_and_load_program(int prg_no, string file)
 	for (int i=0;i<N_CHANNELS;++i)
 		channel[i]->maybe_reload_program(prg_no);
 	
-	do_request(prg_no, false);
+	do_request(request_t(request_t::RESUME_PROGRAM, prg_no));
 
 	pthread_mutex_unlock(&prog_load_mutex);
 }
@@ -89,7 +61,7 @@ void lock_and_load_program_no_watch_updates(int prg_no, string file)
 {
 	pthread_mutex_lock(&prog_load_mutex);
 
-	do_request(prg_no, true);
+	do_request(request_t(request_t::SUSPEND_PROGRAM, prg_no));
 	
 	if (load_program(file,program_settings[prg_no]))
 	{
@@ -102,20 +74,20 @@ void lock_and_load_program_no_watch_updates(int prg_no, string file)
 	for (int i=0;i<N_CHANNELS;++i)
 		channel[i]->maybe_reload_program(prg_no);
 	
-	do_request(prg_no, false);
+	do_request(request_t(request_t::RESUME_PROGRAM, prg_no));
 
 	pthread_mutex_unlock(&prog_load_mutex);
 }
 
 void lock_and_change_lfo(int lfo_no, float freq)
 {
-	do_request(-1, true);
+	do_request(request_t(request_t::SUSPEND_PROGRAM, -1));
 	
 	uninit_lfo(lfo_no);
 	lfo_freq_hz[lfo_no]=freq;
 	init_lfo(lfo_no);
 	
-	do_request(-1, false);
+	do_request(request_t(request_t::RESUME_PROGRAM, -1));
 }
 
 
@@ -183,13 +155,12 @@ void do_in_synth_cli()
 		else if (command=="panic")
 		{
 			if ((params=="") || (params=="all"))
-				for (int i=0;i<N_CHANNELS;++i)
-					channel[i]->panic();
+				do_request(request_t(request_t::PANIC, -1));
 			else if (isnum(params))
 			{
 				num=atoi(params.c_str());
 				if ((num>=0) && (num<N_CHANNELS))
-					channel[num]->panic();
+					do_request(request_t(request_t::PANIC, num));
 				else
 					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
 			}
@@ -197,17 +168,18 @@ void do_in_synth_cli()
 		else if (command=="release")
 		{
 			if ((params=="") || (params=="all"))
-				for (int i=0;i<N_CHANNELS;++i)
-					channel[i]->release_all();
+				do_request(request_t(request_t::RELEASE_ALL, -1));
 			else if (isnum(params))
 			{
 				num=atoi(params.c_str());
 				if ((num>=0) && (num<N_CHANNELS))
-					channel[num]->release_all();
+					do_request(request_t(request_t::RELEASE_ALL, num));
 				else
 					cout << "error: channel-number must be one of 0.."<<N_CHANNELS-1<<endl;
 			}
 		}
+		// TODO: from here, no proper synchronisation with the audio thread
+		//       is done. use do_request() everywhere!
 		else if (command=="kill_program")
 		{
 			string prgstr, chanstr;

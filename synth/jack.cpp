@@ -34,15 +34,45 @@ void manage_program_lock(int prog, bool lock) //TODO woandershinschieben?
 			channel[i]->kill_program(prog);
 }
 
-void process_request()
+void process_request(request_t request)
 {
-	if (suspend_request.prog==-1)
-		for (int i=0;i<128;++i)
-			manage_program_lock(i,suspend_request.suspend);
-	else
-		manage_program_lock(suspend_request.prog,suspend_request.suspend);
+	switch (request.type)
+	{
+		case request_t::NONE: break;
+		
+		case request_t::SUSPEND_PROGRAM:
+		case request_t::RESUME_PROGRAM:
+			if (request.prog_or_chan==-1)
+				for (int i=0;i<128;++i)
+					manage_program_lock(i,request.type==request_t::SUSPEND_PROGRAM);
+			else
+				manage_program_lock(request.prog_or_chan,request.type==request_t::SUSPEND_PROGRAM);
+			
+			break;
+		
+		case request_t::PANIC:
+			if (request.prog_or_chan==-1)
+				for (int i=0;i<N_CHANNELS;++i)
+					channel[i]->panic();
+			else
+				channel[request.prog_or_chan]->panic();
+			
+			break;
+			
+		case request_t::RELEASE_ALL:
+			if (request.prog_or_chan==-1)
+				for (int i=0;i<N_CHANNELS;++i)
+					channel[i]->release_all();
+			else
+				channel[request.prog_or_chan]->release_all();
+			
+			break;
+		
+		default:
+			cout << "ERROR: bad request, ignoring it." << endl;
+	}
 	
-	suspend_request.done=true;
+	request_finished(0);
 }
 
 
@@ -217,10 +247,10 @@ int xrun_callback(void *notused)
 	
 	if (history.size() >= xrun_n)
 	{
-		cout << "PANIC -- TOO MANY XRUNs! killing all voices" << endl<<endl;
-		for (int i=0;i<N_CHANNELS;++i)
-			channel[i]->panic();
-			
+		cout << "PANIC -- TOO MANY XRUNs! killing all voices" << flush;
+		do_request(request_t(request_t::PANIC, -1));
+		cout << "  (done)" << endl << endl;
+		
 		history.clear();
 	}
 		
@@ -254,11 +284,9 @@ int process_callback(jack_nframes_t nframes, void *notused)
 	}
 
 
-
-	pthread_mutex_lock(&suspend_request_mutex);
-	if (suspend_request.done==false)
-		process_request();
-	pthread_mutex_unlock(&suspend_request_mutex);
+	if (request_available())
+		process_request(get_request());
+	
 
 
 

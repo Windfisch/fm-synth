@@ -12,10 +12,11 @@ TODO für den synth
      (macht notencompiler hoffentlich obsolet)
    o evtl wieder AM implementieren: hätte hoffentlich dann keinen
      negativen einfluss wenn unbenutzt
-   o kommunikation sauber synchronisieren: außerhalb von process()
+   x kommunikation sauber synchronisieren: außerhalb von process()
      wird nurnoch ne struct mit funktionspointer und argument-union
      in einen ringbuffer geschrieben. der eigentliche call erfolgt
      dann in process()
+   o saubere kommunikation bei ALLEN in-synth-CLI-sachen
 
    o defines säubern, schöner anordnen
    o frameskipping vlt immer einbauen?
