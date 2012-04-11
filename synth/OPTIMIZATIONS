@@ -2,6 +2,20 @@ Sinnlose Optimierungen
    o if(foo.fm_strength!=0) ...: kein effekt, höchstens leichter anstieg!
  
 Mögliche Optimierungen
+   o ??? if (out>0) und was mit lfo: vlt das if weglassen?
+   o  1% noten kriegen direkten pointer auf ihre waves; (custom_wave-check entfällt)
+   x 15% fm-liste (die nur die oscs mit fm[i]!=0 enthält) statt
+         in O(n²) alle durchzutesten: bei 2 oszillatoren kein effekt,
+         bei 9 oscs der form 1->2->3...->9 (also 9 mod-beziehungen)
+         17% verbesserung
+   o ??? Channel::get_sample() soll mehrere frames berechnen.
+         soll außerdem das /ONE*VOL_FACTOR gleich mit einrechnen
+         (kann einmalig gleich mit Channel::volume verrechnet werden)
+   o 10% BOTTLENECKs in note.cpp fixen. actual_freq und abhängigkeiten
+         nur dann berechnen, wenn sie sich auch ändert (set_freq, porta,
+         pitchbend, freq-envelope)
+   o ??? log_verbose sollte ggf. garnicht interpretiert werden?
+
    o 10% filter ganz auf fixed_t umstellen?
    o  5% envelope::get_level nur alle n frames arbeiten lassen, sonst cachen?
    o  2% bei LFOs: bei jedem LFO-update die werte für env-max, freqfactor

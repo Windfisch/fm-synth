@@ -199,7 +199,7 @@ int main(int argc, char** argv)
 			
 		do_in_synth_cli();
 		
-		cleanup();
+		//cleanup();
 	}
 	catch(string err)
 	{

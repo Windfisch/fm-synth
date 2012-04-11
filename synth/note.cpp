@@ -50,6 +50,11 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	copy(&prg.osc_settings[0],&prg.osc_settings[n_oscillators],oscillator);
 	copy(&prg.osc_settings[0],&prg.osc_settings[n_oscillators],orig.oscillator);
 	
+	fm_oscs=new list<int>[n_oscillators];
+	for (int i=0;i<n_oscillators;++i)
+		for (int j=0;j<n_oscillators;++j)
+			if (oscillator[i].fm_strength[j]!=0)
+				fm_oscs[i].push_back(j);
 	
 	//initalize oscillator.phase to multiples of their wave resolution
 	//this has the following effect: the actual phase, i.e. the index
@@ -156,8 +161,13 @@ void Note::apply_pfactor()
 		oscillator[i].output=orig.oscillator[i].output*pfactor.out[i] >>SCALE;
 		oscillator[i].freq_env_amount=orig.oscillator[i].freq_env_amount*pfactor.freq_env_amount[i] /ONE; //because it's a float
 		
+		fm_oscs[i].clear();
 		for (int j=0;j<n_oscillators;++j)
+		{
 			oscillator[i].fm_strength[j]=orig.oscillator[i].fm_strength[j]*pfactor.fm[i][j] >>SCALE;
+			if (oscillator[i].fm_strength[j]!=0)
+				fm_oscs[i].push_back(j);
+		}
 	}
 	filter_params.env_amount=orig.filter_params.env_amount*pfactor.filter_env /ONE;
 	filter_params.freqfactor_offset=orig.filter_params.freqfactor_offset*pfactor.filter_offset /ONE;
@@ -321,7 +331,7 @@ fixed_t Note::get_sample()
 	if (freq!=dest_freq)
 	{
 		// the div.by.zero if p_frames=0 is avoided because then the 
-		// if-condition below is always true
+		// if-condition below would always be true
 		if (portamento_t>=portamento_frames)
 			freq=dest_freq;
 		else //will only happen if p_t < p_frames -> p_frames is always > 0 -> div. ok
@@ -342,11 +352,16 @@ fixed_t Note::get_sample()
 	fixed_t fm=0;
 	fixed_t out=0;
 	
-	int i,j;
+	int i;
 	
 	if (sync_factor)
 	{
-		sync_phase+=(actual_freq*sync_factor/samp_rate) >> SCALE;
+		sync_phase+=(actual_freq*sync_factor/samp_rate) >> SCALE; // BOTTLENECK
+		// phase-increment depends on:
+		// - actual_freq (which depends on freq and pitchbend)
+		//       steadily updated while portamento-ing and whenever a pitchbend comes in
+		// - sync_factor: only updated manually
+		// - samp_rate: never changes
 		
 		if (sync_phase >= ONE)
 		{
@@ -382,9 +397,9 @@ fixed_t Note::get_sample()
 	{
 		fm=0;
 		
-		for (j=0;j<n_oscillators;++j)
-			if (oscillator[i].fm_strength[j]!=0) //osc_j affects osc_i (FM)
-				fm+=old_oscval[j]*oscillator[i].fm_strength[j];
+		//iterate through all modulating oscs
+		for (list<int>::iterator j=fm_oscs[i].begin(), end=fm_oscs[i].end(); j!=end; j++)		
+			fm+=old_oscval[*j]*oscillator[i].fm_strength[*j];
 
 		fm=fm>>SCALE;
 		
@@ -392,18 +407,26 @@ fixed_t Note::get_sample()
 		if (oscillator[i].vibrato_depth!=0)
 			oscillator[i].phase+=(  (curr_lfo[oscillator[i].vibrato_lfo][oscillator[i].vibrato_depth]*actual_freq >>SCALE)*oscillator[i].factor/samp_rate)>>SCALE;
 		else
-			oscillator[i].phase+=(actual_freq*oscillator[i].factor/samp_rate)>>SCALE;
+			oscillator[i].phase+=(actual_freq*oscillator[i].factor/samp_rate)>>SCALE; // BOTTLENECK
+			// phase-increment depends on:
+			// - actual_freq (which depends on freq and pitchbend)
+			//       steadily updated while portamento-ing and whenever a pitchbend comes in
+			// - the vibrato-lfo: needs update whenever this lfo is updated
+			// - factor (which depends on the freq envelope)
+			//       steadily updated every env_frames frames
+			// - samp_rate: never changes
 			
 		if (oscillator[i].custom_wave)
 		{
 			//sampler
 			custom_wave_t *cw=oscillator[i].custom_wave;
-			oscval[i]=cw->wave[ ((oscillator[i].phase  +  fm) * cw->samp_rate >>(2*SCALE)) % cw->wave_len ] * envval[i]  >> (SCALE);
+			oscval[i]=cw->wave[ ((unsigned int)((oscillator[i].phase  +  fm) * cw->samp_rate >>(2*SCALE))) % cw->wave_len ] * envval[i]  >> (SCALE);
 		}
 		else
 		{
 			//normal oscillator
-			oscval[i]=wave[oscillator[i].waveform][ ((oscillator[i].phase  +  fm) * WAVE_RES >>SCALE) % WAVE_RES ] * envval[i] >> (SCALE);
+			//optimisation: the unsigned int cast avoids a slow 64bit modulo calculation. ca. 8% speed gain. same above.
+			oscval[i]=wave[oscillator[i].waveform][ ((unsigned int)((oscillator[i].phase  +  fm) * WAVE_RES >>SCALE)) % WAVE_RES ] * envval[i] >> (SCALE);
 		}
 
 		if (oscillator[i].tremolo_depth!=0)

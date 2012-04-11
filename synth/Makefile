@@ -1,6 +1,6 @@
 CXX=g++
 #CFLAGS=-Wall -O2
-CFLAGS=-Wall -O -g
+CFLAGS=-Wall -O3 -g
 CXXFLAGS=$(CFLAGS)
 LDFLAGS=-lm `pkg-config --cflags --libs jack`
 

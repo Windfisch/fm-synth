@@ -26,15 +26,27 @@ oscillator_t& oscillator_t::operator=(const oscillator_t &that)
 {
 	if (this!=&that)
 	{
+		this->output=that.output;
+		this->waveform=that.waveform;
+		this->factor=that.factor;
+		this->freq_env_amount=that.freq_env_amount;
+		this->freq_env=that.freq_env;
+		this->phase=that.phase;
+		this->tremolo_depth=that.tremolo_depth;
+		this->tremolo_lfo=that.tremolo_lfo;
+		this->vibrato_depth=that.vibrato_depth;
+		this->vibrato_lfo=that.vibrato_lfo;
+		this->custom_wave=that.custom_wave;
+		this->n_osc=that.n_osc;
+		this->ksl=that.ksl;
+		this->ksr=that.ksr;
+		this->sync=that.sync;
+
 		if (this->fm_strength)
 			delete [] this->fm_strength;
 
-		memcpy(this, &that, sizeof(*this));
-
 		this->fm_strength=new fixed_t[n_osc];
 		memcpy(this->fm_strength, that.fm_strength, sizeof(*that.fm_strength)*n_osc);
-		
-		this->custom_wave=that.custom_wave;
 
 		return *this;
 	}

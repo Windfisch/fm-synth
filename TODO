@@ -6,8 +6,11 @@
     
 !!! SEGFAULT wegen nicht synchronisierter kommunikation bei panic()!
 
+!!! cleanup() verursacht SEGFAULT, jedenfalls wenn man es durch
+    callgrind laufen lässt
+
 TODO für den synth
-   o notes kriegen verkettete liste für FM-affect: "kein einfluss"
+   x notes kriegen verkettete liste für FM-affect: "kein einfluss"
      steht dann garnicht in der liste (macht aus O(n²) ein O(n))
      (macht notencompiler hoffentlich obsolet)
    o evtl wieder AM implementieren: hätte hoffentlich dann keinen

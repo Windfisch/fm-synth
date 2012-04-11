@@ -3,6 +3,8 @@
 
 #include <jack/jack.h>
 
+#include <list>
+
 #include "programs.h"
 #include "envelope.h"
 #include "fixed.h"
@@ -43,6 +45,7 @@ class Note : public NoteSkel
 		fixed_t *old_oscval;
 		int n_oscillators;
 		oscillator_t *oscillator;
+		std::list<int>* fm_oscs;
 		
 		fixed_t sync_factor;
 		fixed_t sync_phase;
