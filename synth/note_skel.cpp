@@ -18,6 +18,8 @@ NoteSkel::~NoteSkel()
 void NoteSkel::set_pitchbend(fixed_t pb)
 {
 	pitchbend=pb;
+	
+	recalc_actual_freq();
 }
 
 void NoteSkel::set_freq(float f)

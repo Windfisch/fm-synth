@@ -1,5 +1,8 @@
 Sinnlose Optimierungen
    o if(foo.fm_strength!=0) ...: kein effekt, höchstens leichter anstieg!
+   o dauerndes nutzen von oscillator[i] durch einen curr_osc pointer
+     ersetzen (um etwa eine standardabweichung schneller -> kein
+     wirklicher effekt)
  
 Mögliche Optimierungen
    o ??? if (out>0) und was mit lfo: vlt das if weglassen?

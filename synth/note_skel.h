@@ -31,6 +31,8 @@ class NoteSkel
 
 		virtual void set_param(const parameter_t &p, fixed_t v)=0;
 		
+		virtual void recalc_actual_freq()=0;
+		
 		virtual void destroy()=0;
 		
 	protected:

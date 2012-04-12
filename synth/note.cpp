@@ -50,6 +50,8 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	copy(&prg.osc_settings[0],&prg.osc_settings[n_oscillators],oscillator);
 	copy(&prg.osc_settings[0],&prg.osc_settings[n_oscillators],orig.oscillator);
 	
+	oscillator_phase_increment=new fixed_t[n_oscillators];
+	
 	fm_oscs=new list<int>[n_oscillators];
 	for (int i=0;i<n_oscillators;++i)
 		for (int j=0;j<n_oscillators;++j)
@@ -106,7 +108,7 @@ Note::Note(int n, float v, program_t &prg, jack_nframes_t pf, fixed_t pb, int pr
 	
 	program=prg_no;
 
-
+	recalc_actual_freq();
 }
 
 Note::~Note()
@@ -123,6 +125,7 @@ Note::~Note()
 	}
 	
 	delete [] oscillator;
+	delete [] oscillator_phase_increment;
 	delete [] envelope;
 	delete [] factor_env;
 	
@@ -135,6 +138,7 @@ Note::~Note()
 	delete [] pfactor.freq_env_amount;
 	delete [] pfactor.fm;
 
+	delete [] fm_oscs;
 }
 
 void Note::recalc_factors()
@@ -188,7 +192,10 @@ void Note::set_param(const parameter_t &p, fixed_t v) //ACHTUNG:
 		case KSR: oscillator[p.osc].ksr=float(v)/ONE; break;
 		case KSL: oscillator[p.osc].ksl=float(v)/ONE; break;
 
-		case FACTOR: orig.oscillator[p.osc].factor=pow(2.0, (double)v/12.0/ONE)*ONE; oscillator[p.osc].factor=v*freqfactor_factor[p.osc]; break;
+		case FACTOR: orig.oscillator[p.osc].factor=pow(2.0, (double)v/12.0/ONE)*ONE;
+		             oscillator[p.osc].factor=v*freqfactor_factor[p.osc];
+		             recalc_oscillator_phase_increment(p.osc);
+		             break;
 		case MODULATION: orig.oscillator[p.osc].fm_strength[p.index]=v; apply_pfactor(); break;
 		case OUTPUT: orig.oscillator[p.osc].output=v; apply_pfactor(); break;
 		case TREMOLO: oscillator[p.osc].tremolo_depth=v; break;
@@ -241,7 +248,7 @@ void Note::set_param(const parameter_t &p, fixed_t v) //ACHTUNG:
 		case FILTER_TREMOLO: filter_params.trem_strength=v; break;
 		case FILTER_TREM_LFO: filter_params.trem_lfo=v; break;
 		
-		case SYNC_FACTOR: sync_factor=v; break;
+		case SYNC_FACTOR: sync_factor=pow(2.0, (double)v/12.0/ONE)*ONE; sync_phase_increment=(actual_freq*sync_factor/samp_rate) >> SCALE; break;
 
 		case FREQ_ATTACK: factor_env[p.osc]->set_attack(v*samp_rate >>SCALE); break;
 		case FREQ_DECAY: factor_env[p.osc]->set_decay(v*samp_rate >>SCALE); break;
@@ -323,11 +330,27 @@ void Note::do_ksl()
 void Note::do_ksr()
 {
 	for (int i=0;i<n_oscillators;++i)
-		envelope[i]->set_ratefactor(1.0 / pow(freq>>SCALE, oscillator[i].ksr));
+		envelope[i]->set_ratefactor(1.0 / pow(dest_freq>>SCALE, oscillator[i].ksr));
+}
+
+void Note::recalc_actual_freq()
+{
+	actual_freq=freq*pitchbend >>SCALE;
+	
+	sync_phase_increment=(actual_freq*sync_factor/samp_rate) >> SCALE;
+	
+	for (int i=0;i<n_oscillators;++i)
+		recalc_oscillator_phase_increment(i);
+}
+
+void Note::recalc_oscillator_phase_increment(int osc)
+{
+	oscillator_phase_increment[osc]=(actual_freq*oscillator[osc].factor/samp_rate)>>SCALE;
 }
 
 fixed_t Note::get_sample()
 {
+	// maybe BOTTLENECK: possible optimisation: only execute every N frames
 	if (freq!=dest_freq)
 	{
 		// the div.by.zero if p_frames=0 is avoided because then the 
@@ -337,12 +360,12 @@ fixed_t Note::get_sample()
 		else //will only happen if p_t < p_frames -> p_frames is always > 0 -> div. ok
 			freq = old_freq + (dest_freq-old_freq)*portamento_t/portamento_frames;
 		
+		recalc_actual_freq();
+		
 		do_ksl();
 		
 		++portamento_t;
 	}
-
-	fixed_t actual_freq=freq*pitchbend >>SCALE;
 
 	fixed_t *temp;
 	temp=old_oscval;   //swap the current and old oscval-pointers
@@ -356,7 +379,7 @@ fixed_t Note::get_sample()
 	
 	if (sync_factor)
 	{
-		sync_phase+=(actual_freq*sync_factor/samp_rate) >> SCALE; // BOTTLENECK
+		sync_phase+=sync_phase_increment;
 		// phase-increment depends on:
 		// - actual_freq (which depends on freq and pitchbend)
 		//       steadily updated while portamento-ing and whenever a pitchbend comes in
@@ -389,6 +412,7 @@ fixed_t Note::get_sample()
 			
 			freqfactor_factor[i]=pow(2.0, oscillator[i].freq_env_amount*(factor_env[i]->get_level() - factor_env[i]->get_sustain())/ONE);
 			oscillator[i].factor=orig.oscillator[i].factor*freqfactor_factor[i];
+			recalc_oscillator_phase_increment(i);
 		}
 	}
 	
@@ -404,10 +428,10 @@ fixed_t Note::get_sample()
 		fm=fm>>SCALE;
 		
 		//phase increases in one second, i.e. in samp_rate frames, by the osc's freq
-		if (oscillator[i].vibrato_depth!=0)
-			oscillator[i].phase+=(  (curr_lfo[oscillator[i].vibrato_lfo][oscillator[i].vibrato_depth]*actual_freq >>SCALE)*oscillator[i].factor/samp_rate)>>SCALE;
+		if (oscillator[i].vibrato_depth!=0) // BOTTLENECK: update only on lfo recalculation
+			oscillator[i].phase+=oscillator_phase_increment[i]*curr_lfo[oscillator[i].vibrato_lfo][oscillator[i].vibrato_depth] >>SCALE;
 		else
-			oscillator[i].phase+=(actual_freq*oscillator[i].factor/samp_rate)>>SCALE; // BOTTLENECK
+			oscillator[i].phase+=oscillator_phase_increment[i];
 			// phase-increment depends on:
 			// - actual_freq (which depends on freq and pitchbend)
 			//       steadily updated while portamento-ing and whenever a pitchbend comes in

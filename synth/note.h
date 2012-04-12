@@ -24,6 +24,8 @@ class Note : public NoteSkel
 		bool still_active();
 		void set_param(const parameter_t &p, fixed_t v);
 		
+		void recalc_actual_freq();
+		
 		void destroy();
 		
 	private:
@@ -32,6 +34,8 @@ class Note : public NoteSkel
 
 		void recalc_factors();
 		void apply_pfactor();
+		
+		void recalc_oscillator_phase_increment(int osc);
 
 		Envelope **envelope;
 		
@@ -45,10 +49,14 @@ class Note : public NoteSkel
 		fixed_t *old_oscval;
 		int n_oscillators;
 		oscillator_t *oscillator;
+		fixed_t* oscillator_phase_increment;
 		std::list<int>* fm_oscs;
 		
 		fixed_t sync_factor;
 		fixed_t sync_phase;
+		fixed_t sync_phase_increment;
+
+		fixed_t actual_freq;
 		
 		pfactor_value_t pfactor;
 		
