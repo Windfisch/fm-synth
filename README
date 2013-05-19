@@ -1,0 +1,165 @@
+This is a phase modulating synthesizer using jack
+
+Dependencies:
+- Jack Audio Connection Kit
+- Probably stuff I forgot.
+
+Try starting the synth and type "help".
+And ignore the debugging output.
+
+Format for the .prog files:
+
+	oscillators=<number of oscillators>
+
+	<PARAM>=<value>
+	<PARAM>=<value>
+	...
+
+	controllers:
+	<PARAM>=<affect value>
+	...
+
+	defaults:
+	cont[<CTRL NUMBER>]=<default value>
+	...
+
+	velocity:
+	<PARAM*>=<velocity expression>
+	...
+
+where <PARAM> is one of:
+mod[x][y]:	controls how oscillator #x modulates oscillator #y.
+out[x]:		output level of oscillator #x.
+waveform[x]:	waveform number of oscillator #x, or "440:filename.wav", where 440 denotes
+		the frequency of the sound in the file.
+sync[x]:	0 or 1, whether this oscillator #x should be reset on every sync point or not
+factor[x]:	frequency factor of this osc
+trem[x]:	tremolo depth
+trem_lfo[x]:	which LFO oscillator to use for tremolo
+vib[x]:
+vib_lfo[x]:	same for vibrato
+attack[x]
+decay[x]
+sustain[x]
+release[x]:	time (in seconds) for the A/D/S/R phases of the envelope
+hold[x]:	0 or 1. if set, the release phase is only entered upon NOTE OFF. if unset, release
+		is entered immediately after the sustain phsae.
+ksl[x]/ksr[x]:	key scale level/rate: affect amplitude or ADSR-phase-length depending on pitch
+
+filter.		this filter is applied to the final mix of all oscillators.
+	enabled:	enable the high frequency cutoff filter.
+	env_amount:	how much the filter gets affected by the filter envelope
+	attack
+	decay
+	sustain
+	release
+	hold
+	offset:		cutoff frequency factor of the filter if unaffected by envelope
+	resonance:	filter resonance, 0 .. 1
+	trem
+	trem_lfo
+
+sync_factor:	frequency of the "oscillator reset" signa;
+freq.	
+	env_amount
+	attack
+	decay
+	sustain
+	release
+	hold
+
+<PARAM*> may only be "mod", "out", "filter env res off", "freq env".
+
+<value> may be a simple expression containing numerical calculations:
+Examples: 1/2, 4, 5.4*9/2
+
+
+<affect value> is:
+	ctrl[<MIDI CTRL NUMBER>]*<value> + ctrl[<OTHER MIDI CTRL NUMBER>]*<value> + ...
+
+<velocity expression> is:
+	vel*<value> + <value>, where "vel" is a reserved keyword
+
+the "controllers:", "defaults:" and "velocity:" sections are optional.
+
+
+lfo number can also be "snh", for sample and hold of random data.
+
+
+supported waveforms:
+
+
+                 _         _        
+0 sine         /   \     /   \      
+                    \ _ /     \ _ /
+
+                 .-''-.    .-''-.
+1 abs-sine      /      \  /      \
+               /        \/        \
+                 _         _
+2 half-sine    /   \_____/   \_____
+                 
+                 .---      .---
+3 pulse-sine    /   |     /   |
+               /    |____/    |____
+                    
+                   ---.      ---.
+4 inverted         |   \     |   \
+  pulse-sine   ____|    \____|    \
+                    
+
+5 noise        
+
+
+100 to 300: sawtooth with variable rising/falling phases
+
+                                . |        . |
+100: normal sawtooth        . '   |    . '   |
+                        . '       |. '       |
+                                .          .
+in between                  . '  \     . '  \
+                        . '       \. '       \
+
+                         / \       / \
+200: triangle           /   \     /   \
+                             \   /     \   /
+                              \ /       \ /
+                          .          .
+in between               /  ' .     /  ' .
+                        /       ' ./       ' .
+
+                        | .        | .
+300: inverted sawtooth  |   ' .    |   ' .
+                        |       ' .|       ' .
+
+
+
+400 to 600: pulse with variable high/low ratio
+
+             1      
+400 DC       0 _   _   _   _   _   _  
+            -1 ____________________
+
+             1        ___       ___
+in between   0 _   _   _   _   _   _  
+            -1 _______   _______
+
+             1      _____     _____
+500 square   0 _   _   _   _   _   _  
+            -1 _____     _____
+
+             1    _______   _______
+in between   0 _   _   _   _   _   _  
+            -1 ___       ___  
+
+             1 ____________________
+600 DC       0 _   _   _   _   _   _  
+            -1 
+
+
+about the note compiler: this generates sourcecode for a certain .prog file and
+generates a .so shared object which then can be loaded. It's supposed to improve
+the performance.
+
+
+
