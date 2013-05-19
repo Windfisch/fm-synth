@@ -1,1 +1,3 @@
 synth
+*.prog
+callgrind*

@@ -3,9 +3,11 @@ Sinnlose Optimierungen
    o dauerndes nutzen von oscillator[i] durch einen curr_osc pointer
      ersetzen (um etwa eine standardabweichung schneller -> kein
      wirklicher effekt)
+   o if (out>0) und tremolo-lfo: den if-check weglassen:
+     bringt einen performanceverlust von einer respektive drei
+     standardabweichungen
  
 Mögliche Optimierungen
-   o ??? if (out>0) und was mit lfo: vlt das if weglassen?
    o  1% noten kriegen direkten pointer auf ihre waves; (custom_wave-check entfällt)
    x 15% fm-liste (die nur die oscs mit fm[i]!=0 enthält) statt
          in O(n²) alle durchzutesten: bei 2 oszillatoren kein effekt,
@@ -14,7 +16,7 @@ Mögliche Optimierungen
    o ??? Channel::get_sample() soll mehrere frames berechnen.
          soll außerdem das /ONE*VOL_FACTOR gleich mit einrechnen
          (kann einmalig gleich mit Channel::volume verrechnet werden)
-   o 10% BOTTLENECKs in note.cpp fixen. actual_freq und abhängigkeiten
+   x 33% BOTTLENECKs in note.cpp fixen. actual_freq und abhängigkeiten
          nur dann berechnen, wenn sie sich auch ändert (set_freq, porta,
          pitchbend, freq-envelope)
    o ??? log_verbose sollte ggf. garnicht interpretiert werden?
